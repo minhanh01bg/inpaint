@@ -6,7 +6,7 @@ export function getToken() {
 }
 
 export async function checkToken(){
-    const url = `${config.apiUrl}/users/me`;
+    const url = `${config.apiUrl}/users/me?permit_key=${config.permit_key}`;
     const token = getToken();
     if (!token) {
         return [false, false];

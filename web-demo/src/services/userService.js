@@ -2,7 +2,7 @@ import axios from 'axios';
 import config from '../configs';
 
 export const getUser = async () => {
-    const url = `${config.apiUrl}/users`;
+    const url = `${config.apiUrl}/users?permit_key=${config.permit_key}`;
     const option = {
         method: 'GET',
         headers: {
@@ -21,7 +21,7 @@ export const getUser = async () => {
 
 export const createUser = async (formData, showErrorNotification, showSuccessNotification) => {
     console.log('form data', formData)
-    const url = `${config.apiUrl}/create_user`;
+    const url = `${config.apiUrl}/create_user?permit_key=${config.permit_key}`;
     const option = {
         method: 'POST',
         headers: {

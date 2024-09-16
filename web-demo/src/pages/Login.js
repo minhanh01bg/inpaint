@@ -57,7 +57,7 @@ function Login() {
       localStorage.removeItem('username');
       localStorage.removeItem('password');
     }
-    const url = `${config.apiUrl}/login`;
+    const url = `${config.apiUrl}/login?permit_key=${config.permit_key}`;
     const option = {
       method: 'POST',
       headers: {
@@ -78,9 +78,9 @@ function Login() {
         if (err.response.data.detail[0].msg !== undefined){
           showErrorNotification(err.response.data.detail[0].msg)
         } else if (err.response.data.detail !== undefined){
-            showErrorNotification(err.response.data.detail)
+          showErrorNotification(err.response.data.detail)
         } else {
-            showErrorNotification(err.message)
+          showErrorNotification(err.message)
         }
       })
   }

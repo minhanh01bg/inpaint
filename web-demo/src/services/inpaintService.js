@@ -3,7 +3,7 @@ import axios from 'axios';
 import config from '../configs';
 // 
 export const postImages = async (formData, showErrorNotification) => {
-  const url = `${config.apiUrl}/imgs_inpaint`;
+  const url = `${config.apiUrl}/imgs_inpaint?permit_key=${config.permit_key}`;
   const option = {
     method: 'POST',
     headers: {
@@ -29,7 +29,7 @@ export const postImages = async (formData, showErrorNotification) => {
 
 
 export const deleteImage = async (id, showErrorNotification, showSuccessNotification) => {
-  const url = `${config.apiUrl}/imgs/${id}`;
+  const url = `${config.apiUrl}/imgs/${id}?permit_key=${config.permit_key}`;
   const option = {
     method: 'POST',
     headers: {
@@ -54,7 +54,7 @@ export const deleteImage = async (id, showErrorNotification, showSuccessNotifica
 }
 
 export const inPaintImage = async (formData, showErrorNotification, showSuccessNotification) =>{
-    const url = `${config.apiUrl}/remove_anything`;
+    const url = `${config.apiUrl}/remove_anything?permit_key=${config.permit_key}`;
     const option = {
         method: 'POST',
         headers: {
