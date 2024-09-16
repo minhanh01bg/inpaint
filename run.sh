@@ -34,6 +34,15 @@ if [ -z "$DEBUG" ]
 then
     DEBUG=True
 fi
-uvicorn $MAIN_RUN:app --reload --host $HOST --port $PORT
-cd web-demo/
+
+uvicorn $MAIN_RUN:app --reload --host $HOST --port $PORT &
+
+# Đợi 5 giây để đảm bảo uvicorn khởi chạy
+sleep 5
+
+echo -e "${GREEN}$(hostname)${NC}:${tabs}Switching to web-demo folder..."
+cd web-demo
+
+# Khởi chạy npm start
+echo -e "${GREEN}$(hostname)${NC}:${tabs}Starting npm..."
 npm start
