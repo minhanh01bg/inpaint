@@ -17,17 +17,16 @@ function ImageGallery({ images }) {
         <div>
           <span className="font-bold text-lg">Results</span>
           <div className="mt-5 flex">
-            {images.map((imageSrc, idx) => (
-              <div key={idx} className="w-52 text-center ml-3">
+            
+              <div className="w-52 text-center ml-3">
                 <img
-                  src={imageSrc}
-                  alt={`Image ${idx + 1}`}
-                  onClick={() => handleClickImage(imageSrc)} // Xử lý sự kiện bấm vào ảnh
+                  src={images}
+                  onClick={() => handleClickImage(images)} // Xử lý sự kiện bấm vào ảnh
                   className="cursor-pointer"
                 />
-                <span>Inpainted result {idx}</span>
+                <span>Best inpainted result</span>
               </div>
-            ))}
+            
           </div>
         </div>
       )}

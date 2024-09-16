@@ -14,9 +14,8 @@ import random
 import os
 from utils_birefnet import random_string, remove_file
 from app.api.process.remove_anything import rem_box_point
+
 router = APIRouter()
-
-
 
 @router.post("/imgs_inpaint", status_code=status.HTTP_200_OK)
 async def login_for_access_token(
@@ -63,13 +62,13 @@ async def remove_anything(request: RemoveAnythingRequest):
 
     if request.box:
         boxs = request.box
-        res, length = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
-        return {"message": "Success", "img_path": img_path, "res":res, "length":length}
+        res, score = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
+        return {"message": "Success", "img_path": img_path, "res":res, "score":score}
     
     elif request.point:
         points = request.point
-        res, length = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
-        return {"message": "Success", "img_path": img_path, "res":res, "length":length}
+        res, score = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
+        return {"message": "Success", "img_path": img_path, "res":res, "score":score}
 
     elif request.mask:
         mask = request.mask

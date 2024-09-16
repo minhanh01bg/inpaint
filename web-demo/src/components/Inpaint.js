@@ -139,10 +139,9 @@ const Inpaint = ({ imageUrl }) => {
         const res = await inPaintImage(formData, showErrorNotification, showSuccessNotification)
         console.log(res)
         if (res !== undefined){
-          const folder = res.res;
-          const length = res.length;
-          const images = Array.from({ length }, (_, index) => `${config.apiMedia}/${folder}/inpainted_mask_${index}.png?permit_key=${config.permit_key}`);
-          console.log(images);
+          const path = res.res;
+          console.log(res.score);
+          const images = `${config.apiMedia}/${path}?permit_key=${config.permit_key}`;
           setImages(images)
         }
       } else if (drawingMode === 'mask'){

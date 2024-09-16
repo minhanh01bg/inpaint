@@ -57,37 +57,45 @@ def dilate_mask(mask, kernel_size):
     return dilated_mask
 
 def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
+    from operator import itemgetter
     parsed_url = urlparse(img_path)
     app_path = parsed_url.path.split('app', 1)[-1]
     img_path = 'app' + app_path
     folder = img_path.split("/")[0] + "/" + img_path.split("/")[1] + "/" + img_path.split("/")[2]
     print(img_path)
     print(folder)
+
     # process
     seg.load_image(img_path)
-    seg.plot_box(folder=folder,boxs=boxs, points=points)
-    masks = seg.get_mask2action(boxs=boxs,points=points)
+    seg.plot_box(folder=folder, boxs=boxs, points=points)
+
+    # Lấy kết quả masks và iou_predictions từ SAM2
+    masks, iou_predictions = seg.get_mask2action(boxs=boxs, points=points)
+
+    # Chọn mask có IoU cao nhất
+    best_iou_idx = max(enumerate(iou_predictions), key=itemgetter(1))[0]
+    best_mask = masks[best_iou_idx]
+
+    # Nếu có `dilate_kernel_size`, áp dụng hàm giãn nở (dilation) lên mask tốt nhất
     if dilate_kernel_size is not None:
-        masks = [dilate_mask(mask, dilate_kernel_size) for mask in masks]
+        best_mask = dilate_mask(best_mask, dilate_kernel_size)
 
     out_dir = Path(f"{folder}")
-    # out_dir.mkdir(parents=True, exist_ok=True)
     img = seg.convert_img2array()
-    for idx, mask in enumerate(masks):
-        # print(mask)
-        mask_p = out_dir / f"mask_{idx}.png"
-        img_mask_p = out_dir / f"with_{Path(mask_p).name}"
 
-        save_array_to_img(mask, mask_p)
-        img_mask = overlay(img, mask, colors[idx], 0.5)
-        save_array_to_img(img_mask, img_mask_p)
+    # Lưu mask tốt nhất
+    mask_p = out_dir / f"best_mask.png"
+    img_mask_p = out_dir / f"with_best_mask.png"
 
-    for idx, mask in enumerate(masks):
-        mask_p = out_dir / f"mask_{idx}.png"
-        img_inpainted_p = out_dir / f"inpainted_{Path(mask_p).name}"
-        # img_inpainted = inpaint_img_with_lama(
-        #     img, mask, lama_config, lama_ckpt, device=seg.device)
-        img_inpainted = lama.predict(img=img, mask=mask)  
-        save_array_to_img(img_inpainted, img_inpainted_p)
+    save_array_to_img(best_mask, mask_p)
+    img_mask = overlay(img, best_mask, colors[0], 0.5)  # chỉ cần dùng 1 màu vì chỉ có 1 mask
+    save_array_to_img(img_mask, img_mask_p)
 
-    return folder, len(masks)
+    # Inpainting sử dụng mask tốt nhất
+    mask_p = out_dir / f"best_mask.png"
+    img_inpainted_p = out_dir / f"inpainted_best_mask.png"
+    
+    img_inpainted = lama.predict(img=img, mask=best_mask)
+    save_array_to_img(img_inpainted, img_inpainted_p)
+
+    return img_inpainted_p, iou_predictions[best_iou_idx]

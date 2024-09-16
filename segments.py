@@ -40,7 +40,7 @@ class SegmentAnything:
         input_boxes = results[0].boxes.xyxy.cpu().numpy()
 
         self.sam2_predictor.set_image(np.array(self.cv_image))
-        masks, _, _ = self.sam2_predictor.predict(
+        masks, iou_predictions, _ = self.sam2_predictor.predict(
             point_coords=None,
             point_labels=None,
             box=input_boxes,
@@ -52,7 +52,7 @@ class SegmentAnything:
         masks = masks.astype(np.uint8) * 255
         if dilate_kernel_size is not None:
             masks = [dilate_mask(mask, dilate_kernel_size) for mask in masks]
-        return masks
+        return masks, iou_predictions
 
     def get_mask_ul(self):
         """Generates the mask using YOLO and SAM2."""
@@ -108,7 +108,7 @@ class SegmentAnything:
         labels = self.get_labels(points=points) if points is not None else None
         self.sam2_predictor.set_image(np.array(self.cv_image))
 
-        masks, _, _ = self.sam2_predictor.predict(
+        masks, iou_predictions, _ = self.sam2_predictor.predict(
             point_coords=points,
             point_labels=labels,
             box=boxs,
@@ -120,7 +120,7 @@ class SegmentAnything:
         masks = masks.astype(np.uint8) * 255
         if dilate_kernel_size is not None:
             masks = [dilate_mask(mask, dilate_kernel_size) for mask in masks]
-        return masks
+        return masks, iou_predictions
     
     def get_mask2action_ul(self, boxs=None, points=None):
         """Generates the mask using YOLO and SAM2."""
@@ -194,7 +194,7 @@ class SegmentAnything:
         cv2.imwrite(save_path, cv_image)
 
     def plot_box(self, folder, boxs=None, points=None):
-        cv_image = self.cv_image
+        cv_image = self.cv_image.copy()
         if boxs is not None:
             boxs = self.xywh2xyxy(boxs)
             for box in boxs:
@@ -216,6 +216,10 @@ class SegmentAnything:
         cv2.imwrite(f"{folder}/cv_box.png", cv_image)
 
 
+# class Point:
+#     def __init__(self, x,y):
+#         self.x = x
+#         self.y = y
 
 # yolov8_model_path = './weights/yolov8n.pt'
 # sam2_checkpoint = './sam2/checkpoints/sam2_hiera_large.pt'
@@ -226,7 +230,10 @@ class SegmentAnything:
 # seg = SegmentAnything(yolov8_model_path=yolov8_model_path,sam2_checkpoint=sam2_checkpoint, sam2_model_config=sam2_model_config)
 # img_path = "./example/remove-anything/dog.jpg"
 # seg.load_image(img_path=img_path)
-# masks = seg.get_mask_ul()
+# p = [Point(218.6, 368.45), Point(568,230)]
+# seg.plot_box(folder='./results/dog',points=p)
+# masks, iou_predictions = seg.get_mask2action(points=p)
+# print(iou_predictions)
 # img_stem = Path(img_path).stem
 # out_dir = Path("./results") / img_stem
 # out_dir.mkdir(parents=True, exist_ok=True)
