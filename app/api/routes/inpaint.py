@@ -8,7 +8,7 @@ from app.core.security import (
 ) 
 
 import app.schemas.schemas as schemas
-from app.schemas.inpaint_schemas import RemoveAnythingRequest
+from app.schemas.inpaint_schemas import RemoveAnythingRequest, RemoveAnythingResponse
 import string
 import random
 import os
@@ -62,13 +62,13 @@ async def remove_anything(request: RemoveAnythingRequest):
 
     if request.box:
         boxs = request.box
-        res, score = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
-        return {"message": "Success", "img_path": img_path, "res":res, "score":score}
+        path, score = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
+        return {"message": "Success", "img_path": img_path, "path":path, "score":score}
     
     elif request.point:
         points = request.point
-        res, score = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
-        return {"message": "Success", "img_path": img_path, "res":res, "score":score}
+        path, score = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
+        return {"message": "Success", "img_path": img_path, "path":path, "score":score}
 
     elif request.mask:
         mask = request.mask

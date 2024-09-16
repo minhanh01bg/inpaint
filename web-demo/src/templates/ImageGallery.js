@@ -1,5 +1,5 @@
 import { useState } from 'react';
-
+import config from '../configs';
 function ImageGallery({ images }) {
   const [selectedImage, setSelectedImage] = useState(null); // Quản lý ảnh được chọn
 
@@ -11,22 +11,26 @@ function ImageGallery({ images }) {
     setSelectedImage(null); // Đóng modal bằng cách đặt lại ảnh được chọn thành null
   };
 
+  const formattedImages = images.map((path) => {
+    return `${config.apiMedia}/${path}?permit_key=${config.permit_key}`;
+  });
   return (
     <>
       {images && (
         <div>
           <span className="font-bold text-lg">Results</span>
           <div className="mt-5 flex">
-            
-              <div className="w-52 text-center ml-3">
+            {formattedImages.map((imageSrc, idx) => (
+              <div key={idx} className="w-52 text-center mr-2">
                 <img
-                  src={images}
-                  onClick={() => handleClickImage(images)} // Xử lý sự kiện bấm vào ảnh
+                  src={imageSrc}
+                  alt={`Image ${idx + 1}`}
+                  onClick={() => handleClickImage(imageSrc)} // Xử lý sự kiện bấm vào ảnh
                   className="cursor-pointer"
                 />
-                <span>Best inpainted result</span>
+                <span>Inpainted result {idx}</span>
               </div>
-            
+            ))}
           </div>
         </div>
       )}

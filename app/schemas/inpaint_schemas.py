@@ -28,3 +28,10 @@ class RemoveAnythingRequest(BaseModel):
     def is_valid_request(self):
         # Ensure only one of box, point, or mask is provided
         return sum([self.box is not None, self.point is not None, self.mask is not None]) == 1
+    
+
+class RemoveAnythingResponse(BaseModel):
+    message: str
+    img_path: str
+    path: List[str]
+    score: str

@@ -114,12 +114,18 @@ class SegmentAnything:
             box=boxs,
             multimask_output=True,
         )
-        if masks.ndim == 4:
-            masks = masks.squeeze(1)
-        # print(masks.ndim)
+
+        # Kiểm tra kích thước của masks trước khi gọi squeeze
+        if masks.ndim == 4 and masks.shape[1] == 1:
+            masks = masks.squeeze(1)  # Squeeze nếu kích thước tại trục thứ nhất là 1
+
+        # Convert masks to uint8 format
         masks = masks.astype(np.uint8) * 255
+
+        # Áp dụng dilation nếu cần
         if dilate_kernel_size is not None:
             masks = [dilate_mask(mask, dilate_kernel_size) for mask in masks]
+
         return masks, iou_predictions
     
     def get_mask2action_ul(self, boxs=None, points=None):
@@ -170,7 +176,7 @@ class SegmentAnything:
         return cv2.add(bg, fg)
 
     def convert_img2array(self):
-        img = self.pil_image
+        img = self.pil_image.copy()
         if img.mode == "RGBA":
             img = img.convert("RGB")
         return np.array(img)
