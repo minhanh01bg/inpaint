@@ -3,7 +3,7 @@ const config = {
     apiMedia: process.env.REACT_APP_API_MEDIA,
     apiWebsocket:process.env.REACT_APP_API_WEBSOCKET,
     port: process.env.PORT,
-    permit_key: process.env.PERMIT_KEY,
+    permit_key: process.env.REACT_APP_PERMIT_KEY,
 };
 
 export default config;

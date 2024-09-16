@@ -123,7 +123,7 @@ const Inpaint = ({ imageUrl }) => {
         if (res !== undefined){
           const folder = res.res;
           const length = res.length;
-          const images = Array.from({ length }, (_, index) => `${config.apiMedia}/${folder}/inpainted_mask_${index}.png`);
+          const images = Array.from({ length }, (_, index) => `${config.apiMedia}/${folder}/inpainted_mask_${index}.png?permit_key=${config.permit_key}`);
           console.log(images);
           setImages(images)
         }
@@ -141,7 +141,7 @@ const Inpaint = ({ imageUrl }) => {
         if (res !== undefined){
           const folder = res.res;
           const length = res.length;
-          const images = Array.from({ length }, (_, index) => `${config.apiMedia}/${folder}/inpainted_mask_${index}.png`);
+          const images = Array.from({ length }, (_, index) => `${config.apiMedia}/${folder}/inpainted_mask_${index}.png?permit_key=${config.permit_key}`);
           console.log(images);
           setImages(images)
         }

@@ -47,10 +47,10 @@ function Home() {
             <div className="diff-item-1">
               <img
                 alt="daisy"
-                src={config.apiMedia + '/' + mask} />
+                src={config.apiMedia + '/' + mask +'?permit_key='+config.permit_key} />
             </div>
             <div className="diff-item-2">
-                <img alt="daisy" src={config.apiMedia + '/' + file} />
+                <img alt="daisy" src={config.apiMedia + '/' + file +'?permit_key='+config.permit_key} />
             </div>
             <div className="diff-resizer"></div>
           </div>
