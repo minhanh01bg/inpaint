@@ -75,7 +75,13 @@ function Login() {
       })
       .catch(err => {
         localStorage.removeItem('token');
-        showErrorNotification(err.response.data.detail[0].msg);
+        if (err.response.data.detail[0].msg !== undefined){
+          showErrorNotification(err.response.data.detail[0].msg)
+        } else if (err.response.data.detail !== undefined){
+            showErrorNotification(err.response.data.detail)
+        } else {
+            showErrorNotification(err.message)
+        }
       })
   }
   return (
