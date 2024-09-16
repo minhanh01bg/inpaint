@@ -25,7 +25,7 @@ function ImageGallery({ images }) {
                   onClick={() => handleClickImage(imageSrc)} // Xử lý sự kiện bấm vào ảnh
                   className="cursor-pointer"
                 />
-                <span>Mask {idx}</span>
+                <span>Inpainted result {idx}</span>
               </div>
             ))}
           </div>
