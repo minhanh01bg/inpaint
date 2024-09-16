@@ -1,6 +1,6 @@
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
-from ultralytics import YOLO
+from ultralytics import YOLO, SAM
 import cv2
 import random 
 import torch 
@@ -12,14 +12,16 @@ from utils_birefnet import random_string
 from pathlib import Path
 from utils import load_img_to_array, save_array_to_img, dilate_mask, \
     show_mask, show_points, get_clicked_point
+
 class SegmentAnything:
-    def __init__(self, yolov8_model_path, sam2_checkpoint, sam2_model_config):
+    def __init__(self, yolov8_model_path, sam2_checkpoint, sam2_model_config, sam2_ul="./weights/sam2_l.pt"):
         # Load YOLO model
         self.model = YOLO(yolov8_model_path)
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         # Load SAM2 model
         self.sam2_model = build_sam2(sam2_model_config, sam2_checkpoint, device=self.device)
         self.sam2_predictor = SAM2ImagePredictor(self.sam2_model)
+        self.sam2_model_ultralytics = SAM(sam2_ul) if sam2_ul is not None else None
 
     def put_image(self, img):
         self.cv_image = img
@@ -52,7 +54,18 @@ class SegmentAnything:
             masks = [dilate_mask(mask, dilate_kernel_size) for mask in masks]
         return masks
 
-    
+    def get_mask_ul(self):
+        """Generates the mask using YOLO and SAM2."""
+        results = self.model.predict(self.cv_image, verbose=False)
+        input_boxes = results[0].boxes.xyxy.cpu().numpy()
+
+        results = self.sam2_model_ultralytics.predict(self.cv_image,bboxes=input_boxes)
+        # print(results[0])
+        masks = results[0].masks.data.cpu().numpy()
+        ret = []
+        for mask in masks:
+            ret.append(cv2.resize(mask,(self.cv_image.shape[1],self.cv_image.shape[0])))
+        return np.array(ret)
 
     def xywh2xyxy(self, boxs):
         """Convert x1, y1, w, h to x1, y1, x2, y2"""
@@ -88,9 +101,9 @@ class SegmentAnything:
         s = len(points)
         return [1 for i in range(s)]
     
-    def get_mask2action(self, box=None, points=None, dilate_kernel_size=None):
+    def get_mask2action(self, boxs=None, points=None, dilate_kernel_size=None):
         """Generates the mask using YOLO and SAM2."""
-        boxs = self.xywh2xyxy(box) if box is not None else None         
+        boxs = self.xywh2xyxy(boxs) if boxs is not None else None         
         points = self.point2np(points) if points is not None else None
         labels = self.get_labels(points=points) if points is not None else None
         self.sam2_predictor.set_image(np.array(self.cv_image))
@@ -99,7 +112,7 @@ class SegmentAnything:
             point_coords=points,
             point_labels=labels,
             box=boxs,
-            multimask_output=False,
+            multimask_output=True,
         )
         if masks.ndim == 4:
             masks = masks.squeeze(1)
@@ -107,6 +120,21 @@ class SegmentAnything:
         masks = masks.astype(np.uint8) * 255
         if dilate_kernel_size is not None:
             masks = [dilate_mask(mask, dilate_kernel_size) for mask in masks]
+        return masks
+    
+    def get_mask2action_ul(self, boxs=None, points=None):
+        """Generates the mask using YOLO and SAM2."""
+        boxs = self.xywh2xyxy(boxs) if boxs is not None else None         
+        points = self.point2np(points) if points is not None else None
+        labels = self.get_labels(points=points) if points is not None else None
+        
+        results = self.sam2_model_ultralytics.predict(
+            self.cv_image,
+            bboxes=boxs,
+            points=points,
+            labels=labels
+        )
+        masks = results[0].masks.data.cpu().numpy()
         return masks
     
     def remove_background(self, masks):
@@ -189,36 +217,36 @@ class SegmentAnything:
 
 
 
-yolov8_model_path = './weights/yolov8n.pt'
-sam2_checkpoint = './sam2/checkpoints/sam2_hiera_large.pt'
-sam2_model_config = 'sam2_hiera_l.yaml'
-lama_ckpt = "./pretrained_models/big-lama"
-lama_config = "./lama/configs/prediction/default.yaml"
+# yolov8_model_path = './weights/yolov8n.pt'
+# sam2_checkpoint = './sam2/checkpoints/sam2_hiera_large.pt'
+# sam2_model_config = 'sam2_hiera_l.yaml'
+# lama_ckpt = "./pretrained_models/big-lama"
+# lama_config = "./lama/configs/prediction/default.yaml"
 
-seg = SegmentAnything(yolov8_model_path=yolov8_model_path,sam2_checkpoint=sam2_checkpoint, sam2_model_config=sam2_model_config)
-img_path = "./example/remove-anything/dog.jpg"
-seg.load_image(img_path=img_path)
-masks = seg.get_mask()
-img_stem = Path(img_path).stem
-out_dir = Path("./results") / img_stem
-out_dir.mkdir(parents=True, exist_ok=True)
-# print(out_dir)
-img = seg.convert_img2array()
+# seg = SegmentAnything(yolov8_model_path=yolov8_model_path,sam2_checkpoint=sam2_checkpoint, sam2_model_config=sam2_model_config)
+# img_path = "./example/remove-anything/dog.jpg"
+# seg.load_image(img_path=img_path)
+# masks = seg.get_mask_ul()
+# img_stem = Path(img_path).stem
+# out_dir = Path("./results") / img_stem
+# out_dir.mkdir(parents=True, exist_ok=True)
+# # print(out_dir)
+# img = seg.convert_img2array()
 
-for idx, mask in enumerate(masks):
-    mask_p = out_dir / f"mask_{idx}.png"
-    img_points_p = out_dir / f"with_points.png"
-    img_mask_p = out_dir / f"with_{Path(mask_p).name}"
+# for idx, mask in enumerate(masks):
+#     mask_p = out_dir / f"mask_{idx}.png"
+#     img_points_p = out_dir / f"with_points.png"
+#     img_mask_p = out_dir / f"with_{Path(mask_p).name}"
 
-    save_array_to_img(mask, mask_p)
-    dpi = plt.rcParams['figure.dpi']
+#     save_array_to_img(mask, mask_p)
+#     dpi = plt.rcParams['figure.dpi']
     
-    height, width = img.shape[:2]
+#     height, width = img.shape[:2]
 
-    plt.figure(figsize=(width/dpi/0.77, height/dpi/0.77))
-    plt.imshow(img)
-    plt.axis('off')
-    plt.savefig(img_points_p, bbox_inches='tight', pad_inches=0)
-    show_mask(plt.gca(), mask, random_color=False)
-    plt.savefig(img_mask_p, bbox_inches='tight', pad_inches=0)
-    plt.close()
+#     plt.figure(figsize=(width/dpi/0.77, height/dpi/0.77))
+#     plt.imshow(img)
+#     plt.axis('off')
+#     plt.savefig(img_points_p, bbox_inches='tight', pad_inches=0)
+#     show_mask(plt.gca(), mask, random_color=False)
+#     plt.savefig(img_mask_p, bbox_inches='tight', pad_inches=0)
+#     plt.close()

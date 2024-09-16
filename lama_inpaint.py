@@ -183,29 +183,91 @@ def setup_args(parser):
     )
 
 
-if __name__ == "__main__":
-    """Example usage:
-    python lama_inpaint.py \
-        --input_img FA_demo/FA1_dog.png \
-        --input_mask_glob "results/FA1_dog/mask*.png" \
-        --output_dir results \
-        --lama_config lama/configs/prediction/default.yaml \
-        --lama_ckpt big-lama 
-    """
-    parser = argparse.ArgumentParser()
-    setup_args(parser)
-    args = parser.parse_args(sys.argv[1:])
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+# if __name__ == "__main__":
+#     """Example usage:
+#     python lama_inpaint.py \
+#         --input_img FA_demo/FA1_dog.png \
+#         --input_mask_glob "results/FA1_dog/mask*.png" \
+#         --output_dir results \
+#         --lama_config lama/configs/prediction/default.yaml \
+#         --lama_ckpt big-lama 
+#     """
+#     parser = argparse.ArgumentParser()
+#     setup_args(parser)
+#     args = parser.parse_args(sys.argv[1:])
+#     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    img_stem = Path(args.input_img).stem
-    mask_ps = sorted(glob.glob(args.input_mask_glob))
-    out_dir = Path(args.output_dir) / img_stem
-    out_dir.mkdir(parents=True, exist_ok=True)
+#     img_stem = Path(args.input_img).stem
+#     mask_ps = sorted(glob.glob(args.input_mask_glob))
+#     out_dir = Path(args.output_dir) / img_stem
+#     out_dir.mkdir(parents=True, exist_ok=True)
 
-    img = load_img_to_array(args.input_img)
-    for mask_p in mask_ps:
-        mask = load_img_to_array(mask_p)
-        img_inpainted_p = out_dir / f"inpainted_with_{Path(mask_p).name}"
-        img_inpainted = inpaint_img_with_lama(
-            img, mask, args.lama_config, args.lama_ckpt, device=device)
-        save_array_to_img(img_inpainted, img_inpainted_p)
+#     img = load_img_to_array(args.input_img)
+#     for mask_p in mask_ps:
+#         mask = load_img_to_array(mask_p)
+#         img_inpainted_p = out_dir / f"inpainted_with_{Path(mask_p).name}"
+#         img_inpainted = inpaint_img_with_lama(
+#             img, mask, args.lama_config, args.lama_ckpt, device=device)
+#         save_array_to_img(img_inpainted, img_inpainted_p)
+
+class InpaintModel:
+    def __init__(self, config_p: str, ckpt_p: str, device="cuda"):
+        self.config_p = config_p
+        self.ckpt_p = ckpt_p
+        self.device = torch.device(device)
+        self.model, self.predict_config = self.load_model()
+
+    def load_model(self):
+        predict_config = OmegaConf.load(self.config_p)
+        predict_config.model.path = self.ckpt_p
+
+        train_config_path = os.path.join(predict_config.model.path, 'config.yaml')
+        with open(train_config_path, 'r') as f:
+            train_config = OmegaConf.create(yaml.safe_load(f))
+
+        train_config.training_model.predict_only = True
+        train_config.visualizer.kind = 'noop'
+
+        checkpoint_path = os.path.join(predict_config.model.path, 'models',
+                                       predict_config.model.checkpoint)
+        model = load_checkpoint(train_config, checkpoint_path, strict=False, map_location='cpu')
+        model.freeze()
+        if not predict_config.get('refine', False):
+            model.to(self.device)
+        
+        return model, predict_config
+
+    @torch.no_grad()
+    def predict(self, img: np.ndarray, mask: np.ndarray, mod=8):
+        assert len(mask.shape) == 2
+        if np.max(mask) == 1:
+            mask = mask * 255
+        img = torch.from_numpy(img).float().div(255.)
+        mask = torch.from_numpy(mask).float()
+
+        batch = {}
+        batch['image'] = img.permute(2, 0, 1).unsqueeze(0)
+        batch['mask'] = mask[None, None]
+        unpad_to_size = torch.tensor([[batch['image'].shape[2]], [batch['image'].shape[3]]])
+        batch['unpad_to_size'] = unpad_to_size
+
+        batch['image'] = pad_tensor_to_modulo(batch['image'], mod)
+        batch['mask'] = pad_tensor_to_modulo(batch['mask'], mod)
+
+        if self.predict_config.get('refine', False):
+            assert 'unpad_to_size' in batch, "Unpadded size is required for the refinement"
+            cur_res = refine_predict(batch, self.model, **self.predict_config.refiner)
+            cur_res = cur_res[0].permute(1, 2, 0).detach().cpu().numpy()
+        else:
+            batch = move_to_device(batch, self.device)
+            batch['mask'] = (batch['mask'] > 0) * 1
+            batch = self.model(batch)
+            cur_res = batch[self.predict_config.out_key][0].permute(1, 2, 0)
+            cur_res = cur_res.detach().cpu().numpy()
+
+        if unpad_to_size is not None:
+            orig_height, orig_width = unpad_to_size
+            cur_res = cur_res[:orig_height, :orig_width]
+
+        cur_res = np.clip(cur_res * 255, 0, 255).astype('uint8')
+        return cur_res

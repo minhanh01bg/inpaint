@@ -12,8 +12,14 @@ def load_img_to_array(img_p):
 
 
 def save_array_to_img(img_arr, img_p):
-    Image.fromarray(img_arr.astype(np.uint8)).save(img_p)
-
+    # Kiểm tra nếu img_arr là dạng boolean (True/False)
+    if img_arr.dtype == bool:
+        img_arr = img_arr.astype(np.uint8) * 255  # Chuyển đổi sang 0/255
+    elif img_arr.max() <= 1:  # Trường hợp img_arr có giá trị 0/1, không phải boolean
+        img_arr = img_arr.astype(np.uint8) * 255  # Chuyển đổi sang 0/255
+    
+    # Lưu ảnh
+    Image.fromarray(img_arr).save(img_p)
 
 def dilate_mask(mask, dilate_factor=15):
     mask = mask.astype(np.uint8)
