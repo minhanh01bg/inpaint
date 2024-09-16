@@ -6,7 +6,7 @@ const initialNavigation = {
     { name: 'Inpainting', href: '/inpainting', current: false },
     { name: 'Users', href: '/users', current: false },
   ],
-  isPinned: true,
+  isPinned: false,
   isOpen: true,
   themeCupcake: false,
 };
@@ -26,6 +26,9 @@ const navigationSlice = createSlice({
     },
     togglePin(state) {
       state.isPinned = !state.isPinned;
+      if(state.isPinned === true){
+        state.isOpen = true;
+      }
     },
     toggleOpen(state){
       state.isOpen = !state.isOpen;

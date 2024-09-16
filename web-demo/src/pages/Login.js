@@ -71,7 +71,9 @@ function Login() {
         setToken(res.data.access_token);
         showSuccessNotification('Login success');
         window.location.href = '/home'
-        dispatch(setActive('Background removal'))
+        dispatch(setActive('Background removal'));
+        dispatch(togglePin());
+        
       })
       .catch(err => {
         localStorage.removeItem('token');
