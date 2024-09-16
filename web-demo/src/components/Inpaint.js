@@ -22,7 +22,7 @@ const Inpaint = ({ imageUrl }) => {
 
   useEffect(() => {
     const img = new window.Image();
-    img.src = imageUrl;
+    img.src = imageUrl +'?permit_key='+config.permit_key;
     img.onload = () => {
       const originalWidth = img.width;
       const originalHeight = img.height;

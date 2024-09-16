@@ -37,7 +37,7 @@ function Inpainting() {
         
         
         {file && (
-            <Inpaint imageUrl={config.apiMedia + '/' + file +'?permit_key='+config.permit_key} />
+            <Inpaint imageUrl={config.apiMedia + '/' + file} />
         )}
       </div>
     </>
