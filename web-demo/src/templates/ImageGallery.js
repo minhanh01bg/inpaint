@@ -18,7 +18,7 @@ function ImageGallery({ images }) {
           <span className="font-bold text-lg">Results</span>
           <div className="mt-5 flex">
             {images.map((imageSrc, idx) => (
-              <div key={idx} className="w-52 text-center">
+              <div key={idx} className="w-52 text-center ml-3">
                 <img
                   src={imageSrc}
                   alt={`Image ${idx + 1}`}
