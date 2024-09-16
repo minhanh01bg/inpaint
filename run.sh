@@ -35,3 +35,5 @@ then
     DEBUG=True
 fi
 uvicorn $MAIN_RUN:app --reload --host $HOST --port $PORT
+cd web-demo/
+npm start
