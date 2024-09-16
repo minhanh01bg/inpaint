@@ -7,6 +7,7 @@ from lama_inpaint import inpaint_img_with_lama, InpaintModel
 import numpy as np
 import cv2
 import random
+from urllib.parse import urlparse
 
 yolov8_model_path = './weights/yolov8n.pt'
 sam2_checkpoint = './sam2/checkpoints/sam2_hiera_large.pt'
@@ -56,8 +57,9 @@ def dilate_mask(mask, kernel_size):
     return dilated_mask
 
 def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
-    img_path = img_path.split(":")[2]
-    img_path = img_path[5:]
+    parsed_url = urlparse(img_path)
+    app_path = parsed_url.path.split('app', 1)[-1]
+    img_path = 'app' + app_path
     folder = img_path.split("/")[0] + "/" + img_path.split("/")[1] + "/" + img_path.split("/")[2]
     print(img_path)
     print(folder)
