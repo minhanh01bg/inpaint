@@ -27,7 +27,7 @@ export const postImages = async (formData, showErrorNotification) => {
 
 export const checkImageStatus = async (imageId) => {
   try {
-    const response = await axios.get(`/imgs_upscaler/status/${imageId}?permit_key=${config.permit_key}`);
+    const response = await axios.get(`${config.apiUrl}/imgs_upscaler/status/${imageId}?permit_key=${config.permit_key}`);
     return response.data;
   } catch (error) {
     throw new Error('Error checking image status');
