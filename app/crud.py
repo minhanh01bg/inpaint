@@ -6,7 +6,7 @@ from app.core.security import (
     create_access_token, check_auth_admin, pwd_context, oauth2_scheme, security, get_current_user
 ) 
 from sqlalchemy import and_
-
+import os, shutil
 from fastapi import HTTPException, status
 def add_token(db:Session, username: str, access_token: str,expired_at: datetime):
     db_token = models.Token(access_token=access_token, username=username, expired_at=expired_at)
@@ -57,6 +57,14 @@ def login_for_access_token(db: Session, username: str, password: str, pwd_contex
         else:
             add_token(db=db, username=user.username, access_token=access_token, expired_at=expiration_date)
         db.commit()
+    # clear media after login
+    try:
+        url = './app/media'
+        if os.path.exists(url):
+            shutil.rmtree(url)
+        os.makedirs(url)
+    except:
+        pass
     return {"access_token": access_token, "token_type": "bearer"}
 
 
