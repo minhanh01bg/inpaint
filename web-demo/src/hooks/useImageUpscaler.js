@@ -29,7 +29,7 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
           setIsProcessing(false);
         }
       } catch (err) {
-        showErrorNotification("Error checking image status");
+        // showErrorNotification("Error checking image status");
       }
     }, 5000); // Kiểm tra sau mỗi 5 giây
   };
