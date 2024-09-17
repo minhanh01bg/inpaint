@@ -45,14 +45,14 @@ async def upscaler_images(
     # Thực hiện upscale ảnh dưới nền bằng BackgroundTasks
     background_tasks.add_task(process_image_upscaling, filename.split('.')[0], folder, file_location)
 
-    return {"message": "Image is being processed in the background", "file_location": file_location}
+    return {"message": "Image is being processed in the background", "image_id": filename.split('.')[0], "image": file_location}
 
 
 # API để kiểm tra trạng thái xử lý của ảnh
 @router.get("/imgs_upscaler/status/{image_id}", status_code=status.HTTP_200_OK)
 async def get_image_status(image_id: str):
     folder = f"app/media/{image_id}"
-    upscaled_image_path = f"{folder}/{image_id}_upscaled.png"
+    upscaled_image_path = f"{folder}/upscaled_{image_id}.png"
 
     if os.path.exists(upscaled_image_path):
         return {"status": "completed", "upscaled_image": upscaled_image_path}

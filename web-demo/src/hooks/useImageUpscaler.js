@@ -40,8 +40,9 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
     const res = await postImages(formData, showErrorNotification);
     if (res !== undefined) {
       setFile(res.image);
+      console.log(res.image_id);
       showSuccessNotification('Image upload successful! Processing started...');
-      checkStatus(res.image.split('/').pop()); // Gửi image ID để bắt đầu polling
+      checkStatus(res.image_id); // Gửi image ID để bắt đầu polling
     }
   };
 
