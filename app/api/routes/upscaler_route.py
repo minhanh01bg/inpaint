@@ -53,7 +53,7 @@ async def upscaler_images(
 async def get_image_status(image_id: str):
     folder = f"app/media/{image_id}"
     upscaled_image_path = f"{folder}/upscaled_{image_id}.png"
-
+    print(upscaled_image_path)
     if os.path.exists(upscaled_image_path):
         return {"status": "completed", "upscaled_image": upscaled_image_path}
     return {"status": "processing"}
