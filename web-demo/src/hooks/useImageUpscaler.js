@@ -22,6 +22,7 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
     const intervalId = setInterval(async () => {
       try {
         const statusRes = await checkImageStatus(imageId); // Gọi API kiểm tra trạng thái ảnh
+        console.log(statusRes)
         if (statusRes.status === 'completed') {
           setUpscaled(statusRes.upscaled_image);
           showSuccessNotification("Image upscaled successfully!");
