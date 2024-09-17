@@ -26,7 +26,7 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
     if (res !== undefined) {
       
       setFile(res.image);
-      setMask(res.upscaled)
+      setUpscaled(res.upscaled)
     }
   };
 
