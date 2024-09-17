@@ -1,32 +1,47 @@
 import { useState, useEffect } from 'react';
-import { postImages } from '../services/imageUpscalerService';
+import { postImages, checkImageStatus } from '../services/imageUpscalerService';
+
 const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
-  const [formData, setFormData] = useState({ file: null, type: 'front' })
+  const [formData, setFormData] = useState({ file: null, type: 'front' });
   const [file, setFile] = useState("");
   const [upscaled, setUpscaled] = useState("");
-  
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const handleFileChange = (event) => {
     setFormData({ ...formData, file: event.target.files[0] });
   };
-
- 
 
   const clearForm = () => {
     setFormData({
       file: null,
       type: 'front',
     });
-  }
+  };
+
+  const checkStatus = async (imageId) => {
+    const intervalId = setInterval(async () => {
+      try {
+        const statusRes = await checkImageStatus(imageId); // Gọi API kiểm tra trạng thái ảnh
+        if (statusRes.status === 'completed') {
+          setUpscaled(statusRes.upscaled_image);
+          showSuccessNotification("Image upscaled successfully!");
+          clearInterval(intervalId); // Dừng polling khi đã có kết quả
+          setIsProcessing(false);
+        }
+      } catch (err) {
+        showErrorNotification("Error checking image status");
+      }
+    }, 5000); // Kiểm tra sau mỗi 5 giây
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    // Handle form submission
-    // showErrorNotification('process is running');
+    setIsProcessing(true); // Bắt đầu quá trình xử lý
     const res = await postImages(formData, showErrorNotification);
     if (res !== undefined) {
-      
       setFile(res.image);
-      setUpscaled(res.upscaled)
+      showSuccessNotification('Image upload successful! Processing started...');
+      checkStatus(res.image.split('/').pop()); // Gửi image ID để bắt đầu polling
     }
   };
 
@@ -34,11 +49,12 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
     file,
     upscaled,
     formData,
+    isProcessing,
     handleFileChange,
     handleSubmit,
     clearForm,
     setFormData
   };
-}
+};
 
 export default useImageUpscaler;
