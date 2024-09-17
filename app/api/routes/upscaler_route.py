@@ -34,5 +34,5 @@ async def upscaler_images(
     # process
     size = file.size / (1024* 1024)
     t_start = time.time()
-    upscaled_image = _inference(name=filename.split('.'), folder=folder, image_path=file_location)
+    upscaled_image = _inference(name=filename.split('.')[0], folder=folder, image_path=file_location)
     return {"image":file_location,"upscaled":upscaled_image, "file_size":f"{size:.2f}", "time":f"{time.time() - t_start}"}
