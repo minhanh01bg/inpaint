@@ -22,7 +22,7 @@ async def login_for_access_token(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    r = random_string(30)
+    r = random_string(10)
     filename = f'{r}_{file.filename}'
     ext = filename.split('.')[1]
     if ext not in ['jpeg', 'png', 'jpg']:

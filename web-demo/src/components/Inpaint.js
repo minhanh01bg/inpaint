@@ -162,9 +162,9 @@ const Inpaint = ({ imageUrl }) => {
 
     }
   }
-  useEffect(() =>{
+  // useEffect(() =>{
 
-  },[images])
+  // },[images])
   return (
     <>
       <div className="mt-5 flex w-full flex-col lg:flex-row">
@@ -262,7 +262,7 @@ const Inpaint = ({ imageUrl }) => {
             <div className="">
               <div className="font-bold">Inpainting</div>
               <div className="form-control mt-2">
-                <label className="cursor-pointer label">
+                <label className="cursor-pointer label w-48">
                   <span className="label-text">Remove object</span>
                   <input type="checkbox" 
                     className="checkbox checkbox-primary" 
@@ -274,28 +274,6 @@ const Inpaint = ({ imageUrl }) => {
                   />
                 </label>
               </div>   
-              <div className="form-control mt-2">
-                <label className="cursor-pointer label">
-                  <span className="label-text">Fill Object</span>
-                  <input type="checkbox" 
-                    className="checkbox checkbox-primary" 
-                    checked={inpaintMode === "fill"}
-                    onChange={() => setInpaintMode("fill")}
-                  />
-                </label>
-                <input type="text" placeholder="Type here" className="input input-bordered input-sm w-full max-w-sm" />
-              </div>
-              <div className="form-control mt-2">
-                <label className="cursor-pointer label">
-                  <span className="label-text">Replace Object</span>
-                  <input type="checkbox" 
-                    className="checkbox checkbox-primary" 
-                    checked={inpaintMode === "replace"}
-                    onChange={() => setInpaintMode("replace")}
-                  />
-                </label>
-                <input type="text" placeholder="Type here" className="input input-bordered input-sm w-full max-w-sm" />
-              </div>  
             </div>
           </div>
           <button type="submit" className="mt-5 btn btn-primary btn-sm">Submit</button>

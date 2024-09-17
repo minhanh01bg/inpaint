@@ -8,7 +8,7 @@ import numpy as np
 import cv2
 import random
 from urllib.parse import urlparse
-
+from utils_birefnet import random_string
 yolov8_model_path = './weights/yolov8n.pt'
 sam2_checkpoint = './sam2/checkpoints/sam2_hiera_large.pt'
 sam2_model_config = 'sam2_hiera_l.yaml'
@@ -17,6 +17,8 @@ lama_config = "./lama/configs/prediction/default.yaml"
 colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(10)]
 seg = SegmentAnything(yolov8_model_path, sam2_checkpoint, sam2_model_config)
 lama = InpaintModel(config_p=lama_config, ckpt_p=lama_ckpt, device=seg.device)
+import os
+import shutil
 
 def overlay(image, mask, color, alpha, resize=None):
     """Combines image and its segmentation mask into a single image.
@@ -74,7 +76,14 @@ def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
     # Lấy kết quả masks và iou_predictions từ SAM2
     masks, iou_predictions = seg.get_mask2action(boxs=boxs, points=points)
 
-    out_dir = Path(f"{folder}")
+    out_dir = Path(f"{folder}/results")
+    if out_dir.exists():
+        # Remove the folder and its contents
+        shutil.rmtree(out_dir)
+
+    # Recreate the folder
+    os.makedirs(out_dir)
+    
     img = seg.convert_img2array()
 
     path = []
@@ -137,10 +146,10 @@ def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
         save_array_to_img(img_mask, img_mask_p)
 
         # Inpainting sử dụng mask tốt nhất
-        img_inpainted_p = out_dir / f"object_1_inpainted_best_mask.png"
+        img_inpainted_p = out_dir / f"{random_string(40)}.png"
         img_inpainted = lama.predict(img=img, mask=best_mask)
         path.append(str(img_inpainted_p))  # Ensure path is a string
         score.append(f"{s:.2f}")
         save_array_to_img(img_inpainted, img_inpainted_p)
-
+    
     return path, score

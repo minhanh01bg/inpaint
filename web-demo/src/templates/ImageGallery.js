@@ -10,10 +10,12 @@ function ImageGallery({ images }) {
   const handleCloseModal = () => {
     setSelectedImage(null); // Đóng modal bằng cách đặt lại ảnh được chọn thành null
   };
-
   const formattedImages = images.map((path) => {
     return `${config.apiMedia}/${path}?permit_key=${config.permit_key}`;
   });
+  // const formattedImages = images.map((path) => {
+  //   return `${config.apiMedia}/${path}?permit_key=${config.permit_key}&t=${new Date().getTime()}`;
+  // });
   return (
     <>
       {images && (

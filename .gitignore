@@ -194,3 +194,4 @@ yarn-debug.log*
 yarn-error.log*
 
 app/media/*
+t.py
