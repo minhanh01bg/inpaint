@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { postImages } from '../services/useImageUpscaler';
+import { postImages } from '../services/imageUpscalerService';
 const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
   const [formData, setFormData] = useState({ file: null, type: 'front' })
   const [file, setFile] = useState("");
