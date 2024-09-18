@@ -1,15 +1,15 @@
 import requests
 from PIL import Image
 from io import BytesIO
-from diffusers import StableDiffusionUpscalePipeline
+from diffusers import StableDiffusionUpscalePipeline, StableDiffusionLatentUpscalePipeline
 import torch
 import os
 
 # load model and scheduler
-model_id = "stabilityai/stable-diffusion-x4-upscaler"
-pipeline = StableDiffusionUpscalePipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+model_id = "stabilityai/sd-x2-latent-upscaler"
+pipeline = StableDiffusionLatentUpscalePipeline.from_pretrained(model_id, torch_dtype=torch.float16)
 pipeline = pipeline.to("cuda")
-
+generator = torch.manual_seed(33)
 def _inference(name=None, folder=None, image_path=None):
     # let's download an  image
     if image_path is None:
@@ -22,11 +22,15 @@ def _inference(name=None, folder=None, image_path=None):
         low_res_img = Image.open(image_path)
 
     prompt = "high quality high resolution uhd 4k image"
-    upscaled_image = pipeline(prompt=prompt, image=low_res_img).images[0]
+    upscaled_image = pipeline(
+        prompt=prompt,
+        image=low_res_img,
+        num_inference_steps=20,
+        guidance_scale=0,
+        generator=generator,
+    ).images[0]
     image_name = f"upscaled_{name}.png" if name is not None else "upscaled.png"
     img_save = os.path.join(folder, image_name)
     print(img_save)
-    upscaled_image.save(img_save)
-    return img_save
-
-
+    upscaled_image.save(image_name)
+    return image_name

@@ -4,7 +4,7 @@ from app.core.database import get_db
 import os
 from utils_birefnet import random_string, remove_file
 import time
-from app.api.process.upscaler import _inference
+from app.api.process.upscaler_x2 import _inference
 
 router = APIRouter()
 
