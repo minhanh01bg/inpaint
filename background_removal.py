@@ -34,8 +34,3 @@ def extract_object(birefnet, imagepath):
     mask = pred_pil.resize(image.size)
     image.putalpha(mask)
     return image, mask
-
-# # Visualization
-# plt.axis("off")
-# plt.imshow(extract_object(birefnet, imagepath='/home/minhthuy/Pictures/segment/images.jpeg')[0])
-# plt.show()

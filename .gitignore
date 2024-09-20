@@ -194,4 +194,5 @@ yarn-debug.log*
 yarn-error.log*
 
 app/media/*
-t.py
+upscaler_w_depth.py
+results/

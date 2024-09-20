@@ -8,7 +8,8 @@ import os
 # load model and scheduler
 model_id = "stabilityai/sd-x2-latent-upscaler"
 pipeline = StableDiffusionLatentUpscalePipeline.from_pretrained(model_id, torch_dtype=torch.float16)
-pipeline = pipeline.to("cuda")
+device = "cuda" if torch.cuda.is_available() else "cpu"
+pipeline = pipeline.to(device)
 generator = torch.manual_seed(33)
 def _inference(name=None, folder=None, image_path=None):
     # let's download an  image

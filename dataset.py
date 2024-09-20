@@ -7,6 +7,7 @@
 
                 # # Hiển thị ảnh sau khi inpainting
                 # st.image(inpainted_img, caption="Hình ảnh sau khi inpainting", use_column_width=True)import os
+import os
 import cv2
 from tqdm import tqdm
 from PIL import Image

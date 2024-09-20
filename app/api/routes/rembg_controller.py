@@ -13,7 +13,7 @@ import random
 import os
 from utils_birefnet import random_string, remove_file
 import time
-from test import extract_object, birefnet
+from background_removal import extract_object, birefnet
 router = APIRouter()
 
 

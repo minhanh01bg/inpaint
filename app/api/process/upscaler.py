@@ -8,7 +8,8 @@ import os
 # load model and scheduler
 model_id = "stabilityai/stable-diffusion-x4-upscaler"
 pipeline = StableDiffusionUpscalePipeline.from_pretrained(model_id, torch_dtype=torch.float16)
-pipeline = pipeline.to("cuda")
+device = "cuda" if torch.cuda.is_available() else "cpu"
+pipeline = pipeline.to(device)
 
 def _inference(name=None, folder=None, image_path=None):
     # let's download an  image
