@@ -23,8 +23,8 @@ const useImageInpainting = (showErrorNotification, showSuccessNotification) => {
     // Handle form submission
     const res = await postImages(formData, showErrorNotification);
     if (res !== undefined) {
-      setFile(res.image);
-      console.log(res.image)
+      setFile(res.image_path);
+      console.log(res.image_path)
     }
   };
 

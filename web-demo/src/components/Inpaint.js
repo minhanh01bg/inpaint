@@ -108,7 +108,7 @@ const Inpaint = ({ imageUrl }) => {
       // console.log(points)
       // console.log(masks)
       if (drawingMode === 'box'){
-        formData['image_path'] = imageUrl;
+        formData['img_path'] = imageUrl;
         
         const adjustedRectangles = rectangles.map(rect => ({
           x: rect.x / scaleX,
@@ -128,7 +128,7 @@ const Inpaint = ({ imageUrl }) => {
         }
       } else if (drawingMode === 'point'){
         // Adjust the point coordinates
-        formData['image_path'] = imageUrl;
+        formData['img_path'] = imageUrl;
         const adjustedPoints = points.map(point => ({
           x: point.x / scaleX,
           y: point.y / scaleY
