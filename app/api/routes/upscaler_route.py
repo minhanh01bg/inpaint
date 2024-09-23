@@ -12,7 +12,7 @@ def process_image_upscaling(name, folder, image_path):
     upscaled_image = _inference(name=name, folder=folder, image_path=image_path)
     return upscaled_image
 
-@router.post("/imgs_upscaler", status_code=status.HTTP_200_OK)
+@router.post("/upscaler", status_code=status.HTTP_200_OK)
 async def upscaler_images(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
@@ -45,11 +45,11 @@ async def upscaler_images(
     # Thực hiện upscale ảnh dưới nền bằng BackgroundTasks
     background_tasks.add_task(process_image_upscaling, filename.split('.')[0], folder, file_location)
 
-    return {"message": "Image is being processed in the background", "image_id": filename.split('.')[0], "image": file_location}
+    return {"message": "Image is being processed in the background", "image_id": filename.split('.')[0], "image_path": file_location}
 
 
 # API để kiểm tra trạng thái xử lý của ảnh
-@router.get("/imgs_upscaler/status/{image_id}", status_code=status.HTTP_200_OK)
+@router.get("/upscaler/status/{image_id}", status_code=status.HTTP_200_OK)
 async def get_image_status(image_id: str):
     folder = f"app/media/{image_id}"
     upscaled_image_path = f"{folder}/upscaled_{image_id}.png"

@@ -17,7 +17,7 @@ from app.api.process.remove_anything import rem_box_point
 
 router = APIRouter()
 
-@router.post("/imgs_inpaint", status_code=status.HTTP_200_OK)
+@router.post("/inpainting", status_code=status.HTTP_200_OK)
 async def login_for_access_token(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
@@ -43,7 +43,10 @@ async def login_for_access_token(
     size = file.size / (1024* 1024)
     
     # remove_file(file_location)
-    return {"image":file_location,"file_size":f"{size:.2f}"}
+    return {
+        "image_path":file_location,
+        "file_size":f"{size:.2f}"
+    }
 
 @router.post('/remove_anything', status_code=status.HTTP_200_OK)
 async def remove_anything(request: RemoveAnythingRequest):
@@ -63,12 +66,12 @@ async def remove_anything(request: RemoveAnythingRequest):
     if request.box:
         boxs = request.box
         path, score = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
-        return {"message": "Success", "img_path": img_path, "path":path, "score":score}
+        return {"message": "Success", "image_path": img_path, "result_path":path, "score":score}
     
     elif request.point:
         points = request.point
         path, score = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
-        return {"message": "Success", "img_path": img_path, "path":path, "score":score}
+        return {"message": "Success", "image_path": img_path, "result_path":path, "score":score}
 
     elif request.mask:
         mask = request.mask

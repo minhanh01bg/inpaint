@@ -11,7 +11,7 @@ from app.core.init_db import create_superuser
 create_superuser()
 
 # run app ---------------------------
-app = FastAPI(title="DON'T USE THIS API", description="This API is for testing purposes only", version="0.1.0")
+app = FastAPI(title="AI PHOTO API", description="This API is for research purposes only", version="0.1.0")
 
 # CORS ---------------------------
 from fastapi.middleware.cors import CORSMiddleware

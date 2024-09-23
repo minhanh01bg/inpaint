@@ -26,8 +26,8 @@ const useImageUpload = (showErrorNotification, showSuccessNotification) => {
     const res = await postImages(formData, showErrorNotification);
     if (res !== undefined) {
       
-      setFile(res.image);
-      setMask(res.remove)
+      setFile(res.image_path);
+      setMask(res.result_path)
     }
   };
 

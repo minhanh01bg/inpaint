@@ -17,7 +17,7 @@ from background_removal import extract_object, birefnet
 router = APIRouter()
 
 
-@router.post("/imgs", status_code=status.HTTP_200_OK)
+@router.post("/remove_background", status_code=status.HTTP_200_OK)
 async def login_for_access_token(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
@@ -48,4 +48,9 @@ async def login_for_access_token(
     image.save(image_p)
     mask.convert("RGB").save(mask_p)
     # remove_file(file_location)
-    return {"image":file_location,"remove":image_p, "file_size":f"{size:.2f}"}
+    return {
+        "image_path":file_location,
+        "result_path":image_p,
+        "file_size":f"{size:.2f}",
+        "message":"Image processed successfully"
+    }

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import config from '../configs';
 export const postImages = async (formData, showErrorNotification) => {
-  const url = `${config.apiUrl}/imgs_upscaler?permit_key=${config.permit_key}`;
+  const url = `${config.apiUrl}/upscaler?permit_key=${config.permit_key}`;
   const option = {
     method: 'POST',
     headers: {
@@ -27,7 +27,7 @@ export const postImages = async (formData, showErrorNotification) => {
 
 export const checkImageStatus = async (imageId) => {
   try {
-    const response = await axios.get(`${config.apiUrl}/imgs_upscaler/status/${imageId}?permit_key=${config.permit_key}`);
+    const response = await axios.get(`${config.apiUrl}/upscaler/status/${imageId}?permit_key=${config.permit_key}`);
     return response.data;
   } catch (error) {
     throw new Error('Error checking image status');

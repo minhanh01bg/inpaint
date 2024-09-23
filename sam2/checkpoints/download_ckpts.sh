@@ -15,7 +15,7 @@ if [ ! -f "/app/sam2/checkpoints/sam2_hiera_tiny.pt" ]; then
   sam2_hiera_s_url="${BASE_URL}sam2_hiera_small.pt"
   sam2_hiera_b_plus_url="${BASE_URL}sam2_hiera_base_plus.pt"
   sam2_hiera_l_url="${BASE_URL}sam2_hiera_large.pt"
-
+  cd /app/sam2/checkpoints/
 
   # Download each of the four checkpoints using wget
   echo "Downloading sam2_hiera_tiny.pt checkpoint..."

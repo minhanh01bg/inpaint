@@ -1,0 +1,9 @@
+web-demo/
+dist
+.git
+*.log
+results/
+# pretrained_models/big-lama/*
+# !pretrained_models/download_lama.sh
+# sam2/checkpoints/*
+# !sam2/checkpoints/download_ckpts.sh

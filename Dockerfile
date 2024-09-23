@@ -42,8 +42,8 @@ RUN pip install diffusers["torch"] transformers xformers ultralytics uvicorn
 COPY . /app
 
 # Run download scripts for SAM2 and LAMA models
-RUN chmod +x /app/sam2/checkpoints/download_ckpts.sh && /app/sam2/checkpoints/download_ckpts.sh
-RUN chmod +x /app/pretrained_models/download_lama.sh && /app/pretrained_models/download_lama.sh
+# RUN chmod +x /app/sam2/checkpoints/download_ckpts.sh && /app/sam2/checkpoints/download_ckpts.sh
+# RUN chmod +x /app/pretrained_models/download_lama.sh && /app/pretrained_models/download_lama.sh
 
 # Expose the FastAPI default port
 EXPOSE 7000
