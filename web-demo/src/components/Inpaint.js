@@ -244,7 +244,7 @@ const Inpaint = ({ imageUrl }) => {
                   />
                 </label>
               </div>
-              <div className="form-control mt-2">
+              {/* <div className="form-control mt-2">
                 <label className="cursor-pointer label w-32">
                   <span className="label-text">Draw Mask</span>
                   <input type="checkbox" 
@@ -256,7 +256,7 @@ const Inpaint = ({ imageUrl }) => {
                     }}
                   />
                 </label>
-              </div>  
+              </div>   */}
             </div>
             <div className="divider divider-horizontal"></div>
             <div className="">
