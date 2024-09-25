@@ -25,7 +25,6 @@ const useImageUpload = (showErrorNotification, showSuccessNotification) => {
     // showErrorNotification('process is running');
     const res = await postImages(formData, showErrorNotification);
     if (res !== undefined) {
-      
       setFile(`data:image/png;base64,${res.image}`);
       setMask(`data:image/png;base64,${res.result_base64}`)
     }

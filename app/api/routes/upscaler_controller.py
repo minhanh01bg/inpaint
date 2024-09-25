@@ -57,7 +57,7 @@ async def upscaler_images(
 async def get_image_status(image_id: str):
     folder = f"app/media/{image_id}"
     status = processing_status.get(image_id, "not found")
-    print(status)
+    # print(status)
     if status["status"] == "completed":
         return status
     elif status["status"] == "processing":
