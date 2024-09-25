@@ -51,7 +51,7 @@ async def login_for_access_token(
 @router.post('/remove_anything', status_code=status.HTTP_200_OK)
 async def remove_anything(request: InputWrapper):
     # Validate the request data
-    if not request.is_valid_request:
+    if not request.input.is_valid_request:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Please provide either a box, point, or mask, but not multiple."
