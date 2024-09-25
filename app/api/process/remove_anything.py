@@ -95,13 +95,13 @@ def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
     # Lấy kết quả masks và iou_predictions từ SAM2
     masks, iou_predictions = seg.get_mask2action(boxs=boxs, points=points)
 
-    out_dir = Path(f"{folder}/results")
-    if out_dir.exists():
-        # Remove the folder and its contents
-        shutil.rmtree(out_dir)
+    # out_dir = Path(f"{folder}/results")
+    # if out_dir.exists():
+    #     # Remove the folder and its contents
+    #     shutil.rmtree(out_dir)
 
-    # Recreate the folder
-    os.makedirs(out_dir)
+    # # Recreate the folder
+    # os.makedirs(out_dir)
     
     img = seg.convert_img2array()
 
@@ -225,13 +225,13 @@ def rem_mask(img_path, masks=None,sliderValue=None, dilate_kernel_size=None):
         return
     best_mask, img = create_mask_image(image_path=img_path,masks=masks,sliderValue=sliderValue, output_path='app/media/test.png')
     print(best_mask.shape, img.shape)
-    out_dir = Path(f"{folder}/results")
-    if out_dir.exists():
-        # Remove the folder and its contents
-        shutil.rmtree(out_dir)
+    # out_dir = Path(f"{folder}/results")
+    # if out_dir.exists():
+    #     # Remove the folder and its contents
+    #     shutil.rmtree(out_dir)
 
-    # Recreate the folder
-    os.makedirs(out_dir)
+    # # Recreate the folder
+    # os.makedirs(out_dir)
     path = []
     score = []
     img_base64s = []
