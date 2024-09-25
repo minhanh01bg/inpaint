@@ -7,55 +7,23 @@ from app.core.security import (
     create_access_token, check_auth_admin, pwd_context, oauth2_scheme, security, get_current_user
 ) 
 
-import os
+from app.schemas.rembg_schemas import InputWrapper
 from utils_birefnet import random_string, remove_file,prepare_image_input
 from background_removal import extract_object, birefnet
-import base64, io,json
+import base64, io,json, os
 
 router = APIRouter()
 
 
 @router.post("/remove_background", status_code=status.HTTP_200_OK)
 async def rmbg_img(
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    data: InputWrapper,
+    # db: Session = Depends(get_db),
 ):
-    r = random_string(30)
-    filename = f'{r}_{file.filename}'
-    ext = filename.split('.')[1]
-    if ext not in ['jpeg', 'png', 'jpg']:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=[{"msg":"file is not image"}],
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    # folder = "app/media"
-    # if not os.path.exists(folder):
-    #     os.mkdir(folder)
-    
-    # Đọc dữ liệu file mà không cần lưu
-    file_content = file.file.read()
-
-    # Chuyển dữ liệu file sang base64
-    base64_encoded_image = base64.b64encode(file_content).decode('utf-8')
-
-    # process
-    inp = f"""
-    {{
-        "source": "{base64_encoded_image}",
-        "input_type":"base64"
-    }}
-    """
+    inp = data.input
     data = json.loads(inp)
-
     image_data = prepare_image_input(data)
-    result, mask = extract_object(birefnet, file.file)
-    
-    # image_p = f"{folder}/{r}_image.png"
-    # mask_p =  f"{folder}/{r}_mask.png"
-    # result.save(image_p)
-    # mask.convert("RGB").save(mask_p)
+    result, mask = extract_object(birefnet, io.BytesIO(image_data))
 
     buffered_image = io.BytesIO()
     buffered_mask = io.BytesIO()

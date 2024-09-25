@@ -16,7 +16,15 @@ const Inpaint = ({ imageUrl }) => {
   const [history, setHistory] = useState([]);
   const [inpaintMode, setInpaintMode] = useState("remove");
   
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    input: {
+      img_path: '',
+      box: [],
+      point: [],
+      mask: [],
+      sliderValue: 0,
+    },
+  });
   const [images, setImages] = useState(null);
   
   const [sliderValue, setSliderValue] = useState(40);
@@ -102,16 +110,21 @@ const Inpaint = ({ imageUrl }) => {
     setHistory(history.slice(0, history.length - 1)); // Remove the last action from history
   };
 
-
   const { showErrorNotification, showSuccessNotification } = useNotification();
   const handleSubmit = async (event) =>{
     event.preventDefault();
     setImages(null)
     const scaleX = imageDimensions.width / shape[0];
     const scaleY = imageDimensions.height / shape[1];
+    
+    let updatedFormData = {
+      input: {
+        ...formData.input,
+        img_path: imageUrl,
+      },
+    };
 
     if (inpaintMode === "remove"){
-      formData['img_path'] = imageUrl;
       if (drawingMode === 'box'){
         const adjustedRectangles = rectangles.map(rect => ({
           x: rect.x / scaleX,
@@ -119,10 +132,15 @@ const Inpaint = ({ imageUrl }) => {
           width: rect.width / scaleX,
           height: rect.height / scaleY
         }));
-        formData['box'] = adjustedRectangles;
-        formData['sliderValue'] = sliderValue;
-        console.log(formData)
-        const res = await inPaintImage(formData, showErrorNotification, showSuccessNotification)
+        updatedFormData = {
+          input: {
+            ...updatedFormData.input,
+            box: adjustedRectangles,
+            sliderValue: sliderValue,
+          },
+        };
+        console.log(updatedFormData)
+        const res = await inPaintImage(updatedFormData, showErrorNotification, showSuccessNotification)
         console.log(res)
         if (res !== undefined){
           setImages(res.img_base64s)
@@ -132,10 +150,15 @@ const Inpaint = ({ imageUrl }) => {
           x: point.x / scaleX,
           y: point.y / scaleY
         }));
-        formData['point'] = adjustedPoints;
-        formData['sliderValue'] = sliderValue;
-        console.log(formData)
-        const res = await inPaintImage(formData, showErrorNotification, showSuccessNotification)
+        updatedFormData = {
+          input: {
+            ...updatedFormData.input,
+            point: adjustedPoints,
+            sliderValue: sliderValue,
+          },
+        };
+        console.log(updatedFormData)
+        const res = await inPaintImage(updatedFormData, showErrorNotification, showSuccessNotification)
         console.log(res)
         if (res !== undefined){
           setImages(res.img_base64s)
@@ -148,17 +171,22 @@ const Inpaint = ({ imageUrl }) => {
             y: point.y / scaleY
           }))
         }));
-        formData['mask'] = adjustedMasks;
+        
         const adjustedSliderValue = sliderValue / ((scaleX + scaleY) / 2);
-        formData['sliderValue'] = adjustedSliderValue;
-        console.log(formData)
-        const res = await inPaintImage(formData, showErrorNotification, showSuccessNotification)
+        updatedFormData = {
+          input: {
+            ...updatedFormData.input,
+            mask: adjustedMasks,
+            sliderValue: adjustedSliderValue,
+          },
+        };
+        console.log(updatedFormData)
+        const res = await inPaintImage(updatedFormData, showErrorNotification, showSuccessNotification)
         console.log(res)
         if(res !== undefined){
           setImages(res.img_base64s)
         }
       }
-      
     }
   }
 

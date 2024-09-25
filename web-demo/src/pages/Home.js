@@ -7,14 +7,11 @@ import config from '../configs';
 import Base64Image from '../templates/Base64Image';
 function Home() {
   const { showErrorNotification, showSuccessNotification } = useNotification();
-  let [isOpen, setIsOpen] = useState(false)
-
   const {
     file,
     mask,
     handleFileChange,
     handleSubmit,
-    clearForm,
     setFormData
   } = useImageUpload(showErrorNotification, showSuccessNotification);
 
@@ -33,26 +30,13 @@ function Home() {
               className="btn btn-primary btn-sm">
               Submit
           </button>
-          <button  type='button' className='btn border-base-300 bg-base-100 btn-sm mr-3' onClick={clearForm}>Clear</button>
         </form>
         {file && (
-          // <div className='mt-5'>
-          //   <p>Image preview:</p>
-          //   <img
-          //     src={config.apiMedia + '/' + file}
-          //     alt="Selected preview"
-          //     className="w-48 h-48 object-contain border border-gray-300"
-          //   />
-          // </div>
           <div className="diff aspect-[16/10] mt-5 border-2 rounded-box max-w-xl">
             <div className="diff-item-1">
-              {/* <img
-                alt="daisy"
-                src={config.apiMedia + '/' + mask +'?permit_key='+config.permit_key} /> */}
                 <Base64Image base64String={mask}/>
             </div>
             <div className="diff-item-2">
-                {/* <img alt="daisy" src={config.apiMedia + '/' + file +'?permit_key='+config.permit_key} /> */}
                 <Base64Image base64String={file}/>
             </div>
             <div className="diff-resizer"></div>
