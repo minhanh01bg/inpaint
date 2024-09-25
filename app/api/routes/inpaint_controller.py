@@ -66,18 +66,18 @@ async def remove_anything(request: InputWrapper):
     if data.box:
         boxs = data.box
         path, score, img_base64s = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
-        return {"message": "Success", "image_path": img_path, "mask_plot":path, "score":score, "img_base64s": img_base64s}
+        return {"message": "Success", "mask_plot":path, "score":score, "img_base64s": img_base64s}
     
     elif data.point:
         points = data.point
         path, score,img_base64s = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
-        return {"message": "Success", "image_path": img_path, "mask_plot":path, "score":score, "img_base64s": img_base64s}
+        return {"message": "Success", "mask_plot":path, "score":score, "img_base64s": img_base64s}
 
     elif data.mask:
         mask = data.mask
         sliderValue = data.sliderValue
         path, score, img_base64s = rem_mask(img_path=img_path,sliderValue=sliderValue, masks=mask,dilate_kernel_size=15)
-        return {"message": "Success", "image_path": img_path, "mask_plot":path, "score":score,"img_base64s": img_base64s}
+        return {"message": "Success", "mask_plot":path, "score":score,"img_base64s": img_base64s}
 
     return {"message":"ok"}
 

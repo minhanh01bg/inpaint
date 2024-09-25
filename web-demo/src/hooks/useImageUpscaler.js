@@ -55,6 +55,7 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsProcessing(true);
+    console.log(formData)
     const res = await postImages(formData, showErrorNotification);
     if (res !== undefined) {
       setFile(`data:image/png;base64,${res.image_base64}`);
