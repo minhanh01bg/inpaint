@@ -25,6 +25,16 @@ colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(10)]
 seg = SegmentAnything(yolov8_model_path, sam2_checkpoint, sam2_model_config)
 lama = InpaintModel(config_p=lama_config, ckpt_p=lama_ckpt, device=seg.device)
 
+def is_base64(s):
+    try:
+        # Kiểm tra nếu chuỗi có thể decode bằng base64 mà không gặp lỗi
+        if isinstance(s, str):
+            # Thử decode và kiểm tra xem có đúng base64 không
+            base64.b64decode(s, validate=True)
+            return True
+        return False
+    except (ValueError, base64.binascii.Error):
+        return False
 
 def overlay(image, mask, color, alpha, resize=None):
     """Combines image and its segmentation mask into a single image.
@@ -65,18 +75,22 @@ def dilate_mask(mask, kernel_size):
     return dilated_mask
 
 def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
-    if type(img_path) == str:
-        parsed_url = urlparse(img_path)
-        app_path = parsed_url.path.split('app', 1)[-1]
-        img_path = 'app' + app_path
-        folder = img_path.split("/")[0] + "/" + img_path.split("/")[1] + "/" + img_path.split("/")[2]
-        print(img_path)
-        print(folder)
-        seg.load_image(img_path)
-        seg.plot_box(folder=folder, boxs=boxs, points=points)
+    if isinstance(img_path, str):
+        if not is_base64(img_path):
+            parsed_url = urlparse(img_path)
+            app_path = parsed_url.path.split('app', 1)[-1]
+            img_path = 'app' + app_path
+            folder = img_path.split("/")[0] + "/" + img_path.split("/")[1] + "/" + img_path.split("/")[2]
+            print(img_path)
+            print(folder)
+            seg.load_image(img_path)
+            seg.plot_box(folder=folder, boxs=boxs, points=points)
+        else:
+            seg.load_image_base64(img_path)
     else:
-        seg.load_image_base64(img_path)
-        
+        print("img_path is not str.")
+        return
+
     # Lấy kết quả masks và iou_predictions từ SAM2
     masks, iou_predictions = seg.get_mask2action(boxs=boxs, points=points)
 
@@ -165,7 +179,7 @@ def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
 
 def create_mask_image(image_path: str, masks, sliderValue, output_path: str):
     # Load the original image
-    if type(image_path) == str:
+    if isinstance(image_path, str):
         img = cv2.imread(image_path)
     else:
         img = image_path
@@ -188,21 +202,26 @@ def create_mask_image(image_path: str, masks, sliderValue, output_path: str):
 
     if type(image_path) == str:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        
+
     return mask_image, img
 
 def rem_mask(img_path, masks=None,sliderValue=None, dilate_kernel_size=None):
-    if type(img_path) == str:
-        parsed_url = urlparse(img_path)
-        app_path = parsed_url.path.split('app', 1)[-1]
-        img_path = 'app' + app_path
-        folder = img_path.split("/")[0] + "/" + img_path.split("/")[1] + "/" + img_path.split("/")[2]
-        print(img_path)
-        print(folder)
+    if isinstance(img_path, str):
+        if not is_base64(img_path):
+            parsed_url = urlparse(img_path)
+            app_path = parsed_url.path.split('app', 1)[-1]
+            img_path = 'app' + app_path
+            folder = img_path.split("/")[0] + "/" + img_path.split("/")[1] + "/" + img_path.split("/")[2]
+            print(img_path)
+            print(folder)
+        else:
+            image_data = base64.b64decode(img_path)
+            image_data = Image.open(image_data).convert("RGB")
+            img_path = np.array(image_data)
+    
     else:
-        image_data = base64.b64decode(img_path)
-        image_data = Image.open(image_data).convert("RGB")
-        img_path = np.array(image_data)
+        print("img_path is not str.")
+        return
     best_mask, img = create_mask_image(image_path=img_path,masks=masks,sliderValue=sliderValue, output_path='app/media/test.png')
     print(best_mask.shape, img.shape)
     out_dir = Path(f"{folder}/results")
