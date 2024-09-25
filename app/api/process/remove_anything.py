@@ -190,12 +190,12 @@ def create_mask_image(image_path: str, masks, sliderValue, output_path: str):
 
     # Iterate over each mask and draw lines between points
     for mask in masks:
-        points = mask.points
+        points = mask.get('points')
         for i in range(len(points)):
             if (i + 1) % len(points)== 0:
                 continue
-            start_point = (int(points[i].x), int(points[i].y))
-            end_point = (int(points[(i + 1) % len(points)].x), int(points[(i + 1) % len(points)].y))  # Wrap around to the first point
+            start_point = (int(points[i].get('x')), int(points[i].get('y')))
+            end_point = (int(points[(i + 1) % len(points)].get('x')), int(points[(i + 1) % len(points)].get('y')))  # Wrap around to the first point
             # Draw line segment
             cv2.line(mask_image, start_point, end_point, color=(255, 255, 255), thickness=int(sliderValue))
 

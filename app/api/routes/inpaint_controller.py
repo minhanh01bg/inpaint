@@ -14,6 +14,7 @@ import random
 import os
 from utils_birefnet import random_string, remove_file
 from app.api.process.remove_anything import rem_box_point, rem_mask
+from fastapi.encoders import jsonable_encoder
 
 router = APIRouter()
 
@@ -57,32 +58,22 @@ async def remove_anything(request: InputWrapper):
             detail="Please provide either a box, point, or mask, but not multiple."
         )
     data = request.input
-    img_path = data.img_path
-    # Assuming you have a method to load and process the image
-    # try:
-        # Load the image based on img_path
-        # process_image(img_path)  # Placeholder for actual image processing logic
-
-    if data.box:
-        boxs = data.box
+    data = jsonable_encoder(data.input)
+    
+    img_path = data.get('img_path') # base64 string
+    if data.get('box'):
+        boxs = data.get('box')
         path, score, img_base64s = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
         return {"message": "Success", "mask_plot":path, "score":score, "img_base64s": img_base64s}
-    
-    elif data.point:
-        points = data.point
+    elif data.get('point'):
+        points = data.get('point')    
         path, score,img_base64s = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
         return {"message": "Success", "mask_plot":path, "score":score, "img_base64s": img_base64s}
 
-    elif data.mask:
-        mask = data.mask
-        sliderValue = data.sliderValue
+    elif data.get('mask'):
+        mask = data.get('mask')
+        sliderValue = data.get('sliderValue')
         path, score, img_base64s = rem_mask(img_path=img_path,sliderValue=sliderValue, masks=mask,dilate_kernel_size=15)
         return {"message": "Success", "mask_plot":path, "score":score,"img_base64s": img_base64s}
 
     return {"message":"ok"}
-
-    # except Exception as e:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-    #         detail=f"An error occurred while processing the image: {str(e)}"
-    #     )
