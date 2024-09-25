@@ -6,35 +6,24 @@ const useImageInpainting = (showErrorNotification, showSuccessNotification) => {
   const [file, setFile] = useState("");
   
   const handleFileChange = (event) => {
-    setFormData({ ...formData, file: event.target.files[0] });
-  };
-
- 
-
-  const clearForm = () => {
-    setFormData({
-      file: null,
-      type: 'front',
-    });
-  }
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    // Handle form submission
-    const res = await postImages(formData, showErrorNotification);
-    if (res !== undefined) {
-      setFile(res.image_path);
-      console.log(res.image_path)
+    const file = event.target.files[0];
+    const reader = new FileReader();
+  
+    reader.onloadend = () => {
+      // Cập nhật formData với Base64 của file
+      const base64String = reader.result.replace(/^data:image\/\w+;base64,/, '');
+      console.log(base64String)
+      setFile(base64String)
+    };
+  
+    if (file) {
+      reader.readAsDataURL(file);
     }
   };
 
   return {
     file,
-    formData,
     handleFileChange,
-    handleSubmit,
-    clearForm,
-    setFormData
   };
 }
 

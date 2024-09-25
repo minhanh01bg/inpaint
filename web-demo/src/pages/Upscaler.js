@@ -7,7 +7,6 @@ import config from '../configs';
 import Base64Image from '../templates/Base64Image';
 function Upscaler() {
   const { showErrorNotification, showSuccessNotification } = useNotification();
-  let [isOpen, setIsOpen] = useState(false)
 
   const {
     file,
@@ -15,7 +14,7 @@ function Upscaler() {
     handleFileChange,
     handleSubmit,
     clearForm,
-    setFormData
+    
   } = useImageUpscaler(showErrorNotification, showSuccessNotification);
 
   return (

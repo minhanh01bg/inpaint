@@ -1,19 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile, BackgroundTasks
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-import os
-from utils_birefnet import random_string, remove_file, file_to_base64, pil_to_base64
-import time
+import os, time, io, base64
+from utils_birefnet import random_string, remove_file, file_to_base64, pil_to_base64, prepare_image_input
 from app.api.process.upscaler import _inference
+from app.schemas.rembg_schemas import InputWrapper
+from fastapi.encoders import jsonable_encoder
 
 router = APIRouter()
 
 processing_status = {}
 
-def process_image_upscaling(name, folder, image_path):
-    upscaled_image = _inference(name=name, folder=folder, image_path=image_path)
+def process_image_upscaling(image_id,image_base64):
+    upscaled_image = _inference(image_base64=image_base64)
     upscaled_image = pil_to_base64(upscaled_image)
-    processing_status[name] = {
+    processing_status[image_id] = {
         "status":"completed",
         "result": upscaled_image
     }
@@ -22,35 +23,17 @@ def process_image_upscaling(name, folder, image_path):
 @router.post("/upscaler", status_code=status.HTTP_200_OK)
 async def upscaler_images(
     background_tasks: BackgroundTasks,
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db),
+    data: InputWrapper,
 ):
-    r = random_string(10)
-    filename = f'{r}_{file.filename}'
-    ext = filename.split('.')[1]
-    if ext not in ['jpeg', 'png', 'jpg']:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=[{"msg":"file is not image"}],
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    folder = f"app/media/{filename.split('.')[0]}"
-    # folder = "app/media"
-    if not os.path.exists(folder):
-        os.mkdir(folder)
-    
-    # file_location = f"{folder}/{filename}"
-    # with open(file_location, "wb+") as file_object:
-    #     file_object.write(file.file.read())
+    r = random_string(20)
+    inp = jsonable_encoder(data.input)
+    image_data = prepare_image_input(inp)
     # process
-    image_base64 = file_to_base64(file)
-    processing_status[filename.split('.')[0]] = {"status":"processing"}
+    processing_status[r] = {"status":"processing"}
     # upscale w BackgroundTasks
-    background_tasks.add_task(process_image_upscaling, filename.split('.')[0], folder, file.file)
+    background_tasks.add_task(process_image_upscaling, r, io.BytesIO(image_data))
 
-    return {"message": "Image is being processed in the background", "image_id": filename.split('.')[0], "image_base64": image_base64}
-
+    return {"message": "Image is being processed in the background", "image_id": r, "image_base64": base64.b64encode(image_data).decode('utf-8')}
 
 # API để kiểm tra trạng thái xử lý của ảnh
 @router.get("/upscaler/status/{image_id}", status_code=status.HTTP_200_OK)

@@ -36,7 +36,11 @@ const Inpaint = ({ imageUrl }) => {
 
   useEffect(() => {
     const img = new window.Image();
-    img.src = imageUrl +'?permit_key='+config.permit_key;
+    const base64Image = imageUrl.startsWith('data:image/')
+      ? imageUrl
+      : `data:image/jpeg;base64,${imageUrl}`;
+    // console.log(imageUrl) 
+    img.src = base64Image;
     img.onload = () => {
       const originalWidth = img.width;
       const originalHeight = img.height;

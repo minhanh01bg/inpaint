@@ -2,21 +2,37 @@ import { useState, useEffect } from 'react';
 import { postImages, checkImageStatus } from '../services/imageUpscalerService';
 
 const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
-  const [formData, setFormData] = useState({ file: null, type: 'front' });
+  const [formData, setFormData] = useState({
+    input:{
+      source:"",
+      input_type:"",
+    }
+  })
   const [file, setFile] = useState("");
   const [upscaled, setUpscaled] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleFileChange = (event) => {
-    setFormData({ ...formData, file: event.target.files[0] });
+    const file = event.target.files[0];
+    const reader = new FileReader();
+  
+    reader.onloadend = () => {
+      // Cập nhật formData với Base64 của file
+      const base64String = reader.result.replace(/^data:image\/\w+;base64,/, '');
+      setFormData({ 
+        ...formData, 
+        input: {
+          source: base64String,
+          input_type: 'base64'
+        }
+      });
+    };
+  
+    if (file) {
+      reader.readAsDataURL(file);
+    }
   };
 
-  const clearForm = () => {
-    setFormData({
-      file: null,
-      type: 'front',
-    });
-  };
 
   const checkStatus = async (imageId) => {
     const intervalId = setInterval(async () => {
@@ -55,8 +71,6 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
     isProcessing,
     handleFileChange,
     handleSubmit,
-    clearForm,
-    setFormData
   };
 };
 
