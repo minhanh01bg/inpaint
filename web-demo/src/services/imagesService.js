@@ -8,7 +8,7 @@ export const postImages = async (formData, showErrorNotification) => {
     method: 'POST',
     headers: {
       Accept: 'application/json',
-      'Content-Type': 'multipart/form-data',
+      'Content-Type': 'application/json',
     },
   };
   try {

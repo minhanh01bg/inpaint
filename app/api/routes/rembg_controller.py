@@ -21,8 +21,8 @@ async def rmbg_img(
     # db: Session = Depends(get_db),
 ):
     inp = data.input
-    data = json.loads(inp)
-    image_data = prepare_image_input(data)
+    # data = json.loads(inp)
+    image_data = prepare_image_input(inp)
     result, mask = extract_object(birefnet, io.BytesIO(image_data))
 
     buffered_image = io.BytesIO()
