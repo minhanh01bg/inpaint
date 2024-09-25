@@ -13,6 +13,8 @@ import os
 import shutil
 from operator import itemgetter
 from pathlib import Path
+import base64
+from PIL import Image
 
 yolov8_model_path = './weights/yolov8n.pt'
 sam2_checkpoint = './sam2/checkpoints/sam2_hiera_large.pt'
@@ -63,7 +65,6 @@ def dilate_mask(mask, kernel_size):
     return dilated_mask
 
 def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
-    print(type(img_path))
     if type(img_path) == str:
         parsed_url = urlparse(img_path)
         app_path = parsed_url.path.split('app', 1)[-1]
@@ -164,7 +165,10 @@ def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
 
 def create_mask_image(image_path: str, masks, sliderValue, output_path: str):
     # Load the original image
-    img = cv2.imread(image_path)
+    if type(image_path) == str:
+        img = cv2.imread(image_path)
+    else:
+        img = image_path
     if img is None:
         raise ValueError(f"Image at path {image_path} could not be loaded.")
 
@@ -182,19 +186,23 @@ def create_mask_image(image_path: str, masks, sliderValue, output_path: str):
             # Draw line segment
             cv2.line(mask_image, start_point, end_point, color=(255, 255, 255), thickness=int(sliderValue))
 
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    if type(image_path) == str:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        
     return mask_image, img
 
 def rem_mask(img_path, masks=None,sliderValue=None, dilate_kernel_size=None):
-    
-
-    parsed_url = urlparse(img_path)
-    app_path = parsed_url.path.split('app', 1)[-1]
-    img_path = 'app' + app_path
-    folder = img_path.split("/")[0] + "/" + img_path.split("/")[1] + "/" + img_path.split("/")[2]
-    print(img_path)
-    print(folder)
-
+    if type(img_path) == str:
+        parsed_url = urlparse(img_path)
+        app_path = parsed_url.path.split('app', 1)[-1]
+        img_path = 'app' + app_path
+        folder = img_path.split("/")[0] + "/" + img_path.split("/")[1] + "/" + img_path.split("/")[2]
+        print(img_path)
+        print(folder)
+    else:
+        image_data = base64.b64decode(img_path)
+        image_data = Image.open(image_data).convert("RGB")
+        img_path = np.array(image_data)
     best_mask, img = create_mask_image(image_path=img_path,masks=masks,sliderValue=sliderValue, output_path='app/media/test.png')
     print(best_mask.shape, img.shape)
     out_dir = Path(f"{folder}/results")
