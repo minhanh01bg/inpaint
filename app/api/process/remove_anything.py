@@ -63,7 +63,8 @@ def dilate_mask(mask, kernel_size):
     return dilated_mask
 
 def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
-    if type(img_path) == 'str':
+    print(type(img_path))
+    if type(img_path) == str:
         parsed_url = urlparse(img_path)
         app_path = parsed_url.path.split('app', 1)[-1]
         img_path = 'app' + app_path
