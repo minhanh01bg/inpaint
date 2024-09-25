@@ -57,9 +57,8 @@ async def remove_anything(request: InputWrapper):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Please provide either a box, point, or mask, but not multiple."
         )
-    data = request.input
-    data = jsonable_encoder(data.input)
-    
+    data = jsonable_encoder(request.input)
+
     img_path = data.get('img_path') # base64 string
     if data.get('box'):
         boxs = data.get('box')
