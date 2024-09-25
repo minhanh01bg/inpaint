@@ -19,18 +19,21 @@ const useImageUpload = (showErrorNotification, showSuccessNotification) => {
     const reader = new FileReader();
   
     reader.onloadend = () => {
-      // Cập nhật formData với Base64 của file
+      const arrayBuffer = reader.result;  // This is the binary data
+      const binaryData = new Uint8Array(arrayBuffer);  // Convert ArrayBuffer to Uint8Array
+  
+      // Update formData with binary data
       setFormData({ 
         ...formData, 
         input: {
-          source: reader.result,
-          input_type: 'base64'
+          source: binaryData,  // Send binary data as Uint8Array
+          input_type: 'base64'  // Indicate that it's binary data
         }
       });
     };
   
     if (file) {
-      reader.readAsDataURL(file);
+      reader.readAsArrayBuffer(file);  // Read file as binary data
     }
   };
   
