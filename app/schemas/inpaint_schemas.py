@@ -29,7 +29,10 @@ class RemoveAnythingRequest(BaseModel):
         # Ensure only one of box, point, or mask is provided
         return sum([self.box is not None, self.point is not None, self.mask is not None]) == 1
     
-
+# Wrapper model to encapsulate RemoveAnythingRequest under 'input' key
+class InputWrapper(BaseModel):
+    input: RemoveAnythingRequest
+    
 class RemoveAnythingResponse(BaseModel):
     message: str
     img_path: str

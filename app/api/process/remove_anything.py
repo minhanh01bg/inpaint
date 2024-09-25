@@ -65,9 +65,7 @@ def overlay(image, mask, color, alpha, resize=None):
     return image_combined
 
 def dilate_mask(mask, kernel_size):
-    # Tạo kernel hình chữ nhật với kích thước kernel_size
     kernel = np.ones((kernel_size, kernel_size), np.uint8)
-    # Thực hiện phép giãn mask bằng kernel
     if mask.dtype == bool:
         mask = mask.astype(np.uint8) * 255  # Chuyển đổi sang 0/255
     dilated_mask = cv2.dilate(mask, kernel, iterations=1)
