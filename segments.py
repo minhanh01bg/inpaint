@@ -28,7 +28,7 @@ class SegmentAnything:
         self.pil_image = Image.fromarray(img)
 
     def load_image_base64(self, img_base64):
-        self.pil_image = Image.open(img_base64)
+        self.pil_image = Image.open(img_base64).convert("RGB")
         self.cv_image = np.array(self.pil_image)
         
     def load_image(self, img_path):

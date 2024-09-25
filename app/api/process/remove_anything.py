@@ -13,7 +13,7 @@ import os
 import shutil
 from operator import itemgetter
 from pathlib import Path
-import base64
+import base64, io
 from PIL import Image
 
 yolov8_model_path = './weights/yolov8n.pt'
@@ -87,7 +87,7 @@ def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
             seg.plot_box(folder=folder, boxs=boxs, points=points)
         else:
             image_data = base64.b64decode(img_path)
-            seg.load_image_base64(image_data)
+            seg.load_image_base64(io.BytesIO(image_data))
     else:
         print("img_path is not str.")
         return
@@ -217,7 +217,7 @@ def rem_mask(img_path, masks=None,sliderValue=None, dilate_kernel_size=None):
             print(folder)
         else:
             image_data = base64.b64decode(img_path)
-            image_data = Image.open(image_data).convert("RGB")
+            image_data = Image.open(io.BytesIO(image_data)).convert("RGB")
             img_path = np.array(image_data)
     
     else:
