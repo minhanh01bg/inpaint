@@ -77,7 +77,7 @@ class SegmentAnything:
 
         # Convert Box to np[] (x, y, w, h)
         for box in boxs:
-            x, y, w, h = box.x, box.y, box.width, box.height
+            x, y, w, h = box.get('x'), box.get('y'), box.get('width'), box.get('height')
             box_n.append([x, y, w, h])
 
         # Convert to numpy array for vectorized operations
@@ -98,7 +98,7 @@ class SegmentAnything:
     def point2np(self, points):
         ret = []
         for p  in points:
-            ret.append([p.x,p.y])
+            ret.append([p.get('x'),p.get('y')])
         return np.array(ret)
 
     def get_labels(self, points):
@@ -111,7 +111,7 @@ class SegmentAnything:
         points = self.point2np(points) if points is not None else None
         labels = self.get_labels(points=points) if points is not None else None
         self.sam2_predictor.set_image(np.array(self.cv_image))
-
+        # segment
         masks, iou_predictions, _ = self.sam2_predictor.predict(
             point_coords=points,
             point_labels=labels,
@@ -119,14 +119,14 @@ class SegmentAnything:
             multimask_output=True,
         )
 
-        # Kiểm tra kích thước của masks trước khi gọi squeeze
+        # check masks
         if masks.ndim == 4 and masks.shape[1] == 1:
             masks = masks.squeeze(1)  # Squeeze nếu kích thước tại trục thứ nhất là 1
 
         # Convert masks to uint8 format
         masks = masks.astype(np.uint8) * 255
 
-        # Áp dụng dilation nếu cần
+        # dilation
         if dilate_kernel_size is not None:
             masks = [dilate_mask(mask, dilate_kernel_size) for mask in masks]
 
@@ -217,7 +217,7 @@ class SegmentAnything:
 
         if points is not None:
             for p in points:
-                x,y = int(p.x), int(p.y)
+                x,y = int(p.get('x')), int(p.get('y'))
                 point_color = (0, 255, 0)  # Green color
                 radius = 3  # Radius for the point, can be small like 1-3 for a point effect
                 thickness = -1  # Thickness -1 will fill the circle
@@ -225,45 +225,3 @@ class SegmentAnything:
             
         cv2.imwrite(f"{folder}/cv_box.png", cv_image)
 
-
-# class Point:
-#     def __init__(self, x,y):
-#         self.x = x
-#         self.y = y
-
-# yolov8_model_path = './weights/yolov8n.pt'
-# sam2_checkpoint = './sam2/checkpoints/sam2_hiera_large.pt'
-# sam2_model_config = 'sam2_hiera_l.yaml'
-# lama_ckpt = "./pretrained_models/big-lama"
-# lama_config = "./lama/configs/prediction/default.yaml"
-
-# seg = SegmentAnything(yolov8_model_path=yolov8_model_path,sam2_checkpoint=sam2_checkpoint, sam2_model_config=sam2_model_config)
-# img_path = "./example/remove-anything/dog.jpg"
-# seg.load_image(img_path=img_path)
-# p = [Point(218.6, 368.45), Point(568,230)]
-# seg.plot_box(folder='./results/dog',points=p)
-# masks, iou_predictions = seg.get_mask2action(points=p)
-# print(iou_predictions)
-# img_stem = Path(img_path).stem
-# out_dir = Path("./results") / img_stem
-# out_dir.mkdir(parents=True, exist_ok=True)
-# # print(out_dir)
-# img = seg.convert_img2array()
-
-# for idx, mask in enumerate(masks):
-#     mask_p = out_dir / f"mask_{idx}.png"
-#     img_points_p = out_dir / f"with_points.png"
-#     img_mask_p = out_dir / f"with_{Path(mask_p).name}"
-
-#     save_array_to_img(mask, mask_p)
-#     dpi = plt.rcParams['figure.dpi']
-    
-#     height, width = img.shape[:2]
-
-#     plt.figure(figsize=(width/dpi/0.77, height/dpi/0.77))
-#     plt.imshow(img)
-#     plt.axis('off')
-#     plt.savefig(img_points_p, bbox_inches='tight', pad_inches=0)
-#     show_mask(plt.gca(), mask, random_color=False)
-#     plt.savefig(img_mask_p, bbox_inches='tight', pad_inches=0)
-#     plt.close()
