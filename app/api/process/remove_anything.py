@@ -63,17 +63,18 @@ def dilate_mask(mask, kernel_size):
     return dilated_mask
 
 def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
-    parsed_url = urlparse(img_path)
-    app_path = parsed_url.path.split('app', 1)[-1]
-    img_path = 'app' + app_path
-    folder = img_path.split("/")[0] + "/" + img_path.split("/")[1] + "/" + img_path.split("/")[2]
-    print(img_path)
-    print(folder)
-
-    # Load hình ảnh
-    seg.load_image(img_path)
-    seg.plot_box(folder=folder, boxs=boxs, points=points)
-
+    if type(img_path) == 'str':
+        parsed_url = urlparse(img_path)
+        app_path = parsed_url.path.split('app', 1)[-1]
+        img_path = 'app' + app_path
+        folder = img_path.split("/")[0] + "/" + img_path.split("/")[1] + "/" + img_path.split("/")[2]
+        print(img_path)
+        print(folder)
+        seg.load_image(img_path)
+        seg.plot_box(folder=folder, boxs=boxs, points=points)
+    else:
+        seg.load_image_base64(img_path)
+        
     # Lấy kết quả masks và iou_predictions từ SAM2
     masks, iou_predictions = seg.get_mask2action(boxs=boxs, points=points)
 

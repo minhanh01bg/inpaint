@@ -16,7 +16,7 @@ router = APIRouter()
 
 
 @router.post("/remove_background", status_code=status.HTTP_200_OK)
-async def login_for_access_token(
+async def rmbg_img(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):

@@ -27,6 +27,10 @@ class SegmentAnything:
         self.cv_image = img
         self.pil_image = Image.fromarray(img)
 
+    def load_image_base64(self, img_base64):
+        self.pil_image = Image.open(img_base64)
+        self.cv_image = np.array(self.pil_image)
+        
     def load_image(self, img_path):
         """Loads an image from the given path."""
         
