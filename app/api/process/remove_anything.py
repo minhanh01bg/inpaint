@@ -86,7 +86,8 @@ def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
             seg.load_image(img_path)
             seg.plot_box(folder=folder, boxs=boxs, points=points)
         else:
-            seg.load_image_base64(img_path)
+            image_data = base64.b64decode(img_path)
+            seg.load_image_base64(image_data)
     else:
         print("img_path is not str.")
         return
