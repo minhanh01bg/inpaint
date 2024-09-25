@@ -6,7 +6,7 @@ from app.core.database import get_db
 from app.core.security import (
     create_access_token, check_auth_admin, pwd_context, oauth2_scheme, security, get_current_user
 ) 
-
+from fastapi.encoders import jsonable_encoder
 from app.schemas.rembg_schemas import InputWrapper
 from utils_birefnet import random_string, remove_file,prepare_image_input
 from background_removal import extract_object, birefnet
@@ -20,7 +20,7 @@ async def rmbg_img(
     data: InputWrapper,
     # db: Session = Depends(get_db),
 ):
-    inp = data.input
+    inp = jsonable_encoder(data.input)
     # data = json.loads(inp)
     image_data = prepare_image_input(inp)
     result, mask = extract_object(birefnet, io.BytesIO(image_data))
