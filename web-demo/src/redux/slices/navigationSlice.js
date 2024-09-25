@@ -4,8 +4,8 @@ const initialNavigation = {
   navigationItems: [
     { name: 'Background removal', href: '/home', current: true },
     { name: 'Inpainting', href: '/inpainting', current: false },
-    { name: 'Users', href: '/users', current: false },
     { name: 'Upscaling image', href: '/upscaling', current: false },
+    { name: 'Users', href: '/users', current: false },
   ],
   isPinned: false,
   isOpen: true,

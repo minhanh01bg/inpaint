@@ -23,7 +23,7 @@ class RemoveAnythingRequest(BaseModel):
     box: Optional[List[Box]] = None  # Optional, only one should be sent at a time
     point: Optional[List[Point]] = None
     mask: Optional[List[Mask]] = None
-
+    sliderValue: float = Field(..., description="The URL or path to the image")
     @property
     def is_valid_request(self):
         # Ensure only one of box, point, or mask is provided

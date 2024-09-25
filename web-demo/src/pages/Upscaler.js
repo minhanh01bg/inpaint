@@ -4,6 +4,7 @@ import useImageUpscaler from '../hooks/useImageUpscaler';
 import { useNotification } from '../contexts/NotificationContext';
 import { useState } from 'react'
 import config from '../configs';
+import Base64Image from '../templates/Base64Image';
 function Upscaler() {
   const { showErrorNotification, showSuccessNotification } = useNotification();
   let [isOpen, setIsOpen] = useState(false)
@@ -35,22 +36,16 @@ function Upscaler() {
           <button  type='button' className='btn border-base-300 bg-base-100 btn-sm mr-3' onClick={clearForm}>Clear</button>
         </form>
         {file && (
-          // <div className='mt-5'>
-          //   <p>Image preview:</p>
-          //   <img
-          //     src={config.apiMedia + '/' + file}
-          //     alt="Selected preview"
-          //     className="w-48 h-48 object-contain border border-gray-300"
-          //   />
-          // </div>
-          <div className="diff aspect-[16/10] mt-5 border-2 rounded-box max-w-xl">
+          <div className="diff aspect-[16/10] mt-5 border-2 rounded-box max-w-2xl">
             <div className="diff-item-1">
-              <img
+              {/* <img
                 alt="daisy"
-                src={config.apiMedia + '/' + upscaled +'?permit_key='+config.permit_key} />
+                src={config.apiMedia + '/' + upscaled +'?permit_key='+config.permit_key} /> */}
+                <Base64Image base64String={upscaled} />
             </div>
             <div className="diff-item-2">
-                <img alt="daisy" src={config.apiMedia + '/' + file +'?permit_key='+config.permit_key} />
+                {/* <img alt="daisy" src={config.apiMedia + '/' + file +'?permit_key='+config.permit_key} /> */}
+                <Base64Image base64String={file} />
             </div>
             <div className="diff-resizer"></div>
           </div>

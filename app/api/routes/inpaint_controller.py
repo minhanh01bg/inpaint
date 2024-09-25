@@ -13,7 +13,7 @@ import string
 import random
 import os
 from utils_birefnet import random_string, remove_file
-from app.api.process.remove_anything import rem_box_point
+from app.api.process.remove_anything import rem_box_point, rem_mask
 
 router = APIRouter()
 
@@ -65,17 +65,19 @@ async def remove_anything(request: RemoveAnythingRequest):
 
     if request.box:
         boxs = request.box
-        path, score = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
-        return {"message": "Success", "image_path": img_path, "result_path":path, "score":score}
+        path, score, img_base64s = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
+        return {"message": "Success", "image_path": img_path, "mask_plot":path, "score":score, "img_base64s": img_base64s}
     
     elif request.point:
         points = request.point
-        path, score = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
-        return {"message": "Success", "image_path": img_path, "result_path":path, "score":score}
+        path, score,img_base64s = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
+        return {"message": "Success", "image_path": img_path, "mask_plot":path, "score":score, "img_base64s": img_base64s}
 
     elif request.mask:
         mask = request.mask
-        print(mask)
+        sliderValue = request.sliderValue
+        path, score, img_base64s = rem_mask(img_path=img_path,sliderValue=sliderValue, masks=mask,dilate_kernel_size=15)
+        return {"message": "Success", "image_path": img_path, "mask_plot":path, "score":score,"img_base64s": img_base64s}
 
     return {"message":"ok"}
 

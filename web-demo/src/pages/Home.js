@@ -4,6 +4,7 @@ import useImageUpload from '../hooks/useImageUpload';
 import { useNotification } from '../contexts/NotificationContext';
 import { useState } from 'react'
 import config from '../configs';
+import Base64Image from '../templates/Base64Image';
 function Home() {
   const { showErrorNotification, showSuccessNotification } = useNotification();
   let [isOpen, setIsOpen] = useState(false)
@@ -45,12 +46,14 @@ function Home() {
           // </div>
           <div className="diff aspect-[16/10] mt-5 border-2 rounded-box max-w-xl">
             <div className="diff-item-1">
-              <img
+              {/* <img
                 alt="daisy"
-                src={config.apiMedia + '/' + mask +'?permit_key='+config.permit_key} />
+                src={config.apiMedia + '/' + mask +'?permit_key='+config.permit_key} /> */}
+                <Base64Image base64String={mask}/>
             </div>
             <div className="diff-item-2">
-                <img alt="daisy" src={config.apiMedia + '/' + file +'?permit_key='+config.permit_key} />
+                {/* <img alt="daisy" src={config.apiMedia + '/' + file +'?permit_key='+config.permit_key} /> */}
+                <Base64Image base64String={file}/>
             </div>
             <div className="diff-resizer"></div>
           </div>

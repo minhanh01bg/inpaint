@@ -6,7 +6,10 @@ import numpy as np
 import random
 import cv2
 from PIL import Image
-
+import string 
+import base64
+from io import BytesIO
+import requests
 
 def path_to_image(path, size=(1024, 1024), color_type=['rgb', 'gray'][0]):
     if color_type.lower() == 'rgb':
@@ -96,9 +99,6 @@ def set_seed(seed):
     random.seed(seed)
     torch.backends.cudnn.deterministic = True
 
-
-import string 
-import random
 def remove_file(save_path):
     if os.path.exists(save_path):
         os.remove(save_path)
@@ -106,3 +106,56 @@ def remove_file(save_path):
 def random_string(length):
     letters = string.ascii_lowercase + string.ascii_uppercase + string.digits
     return ''.join(random.choice(letters) for i in range(length))
+
+# numpy image to base64
+def numpy_to_base64(numpy_img, format='PNG'):
+    pil_img = Image.fromarray(numpy_img)
+    return pil_to_base64(pil_img, format)
+
+# PIL image to base64
+def pil_to_base64(pil_img, format='PNG'):
+    buffered = BytesIO()
+    pil_img.save(buffered, format=format)
+    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+    return img_str
+
+def prepare_image_input(job):
+    """
+    Prepares image data for processing from various input types.
+
+    Args:
+        job:
+        - source (str): The image source (can be a URL, file path, or base64 string).
+        - input_type (str): The type of input provided (options: 'url', 'file', 'base64').
+
+    Returns:
+    - dict: A job dictionary with the image encoded in base64.
+    """
+    source = job.get('source')
+    input_type = job.get('input_type')
+    image_data = None
+
+    if input_type == 'url':
+        # Load image from a URL
+        response = requests.get(source)
+        image_data = response.content
+    
+    elif input_type == 'file':
+        # Load image from a local file path
+        with open(source, 'rb') as image_file:
+            image_data = image_file.read()
+    
+    elif input_type == 'base64':
+        # The source is already a base64 string
+        image_data = base64.b64decode(source)
+        
+    elif input_type == 'upload':
+
+        image_data = source.read()
+    # Convert the image data to base64 (for uniformity in job input)
+    # image_base64 = base64.b64encode(image_data).decode('utf-8')
+    return image_data
+
+def file_to_base64(file):
+    file_content = file.file.read()
+    return base64.b64encode(file_content).decode('utf-8')

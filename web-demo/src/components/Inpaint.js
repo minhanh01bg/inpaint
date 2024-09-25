@@ -19,6 +19,12 @@ const Inpaint = ({ imageUrl }) => {
   const [formData, setFormData] = useState({});
   const [images, setImages] = useState(null);
   
+  const [sliderValue, setSliderValue] = useState(40);
+
+  // Function to handle the slider value change
+  const handleSliderChange = (event) => {
+    setSliderValue(event.target.value); // Update the state with new value
+  };
 
   useEffect(() => {
     const img = new window.Image();
@@ -103,13 +109,10 @@ const Inpaint = ({ imageUrl }) => {
     setImages(null)
     const scaleX = imageDimensions.width / shape[0];
     const scaleY = imageDimensions.height / shape[1];
+
     if (inpaintMode === "remove"){
-      // console.log(rectangles)
-      // console.log(points)
-      // console.log(masks)
+      formData['img_path'] = imageUrl;
       if (drawingMode === 'box'){
-        formData['img_path'] = imageUrl;
-        
         const adjustedRectangles = rectangles.map(rect => ({
           x: rect.x / scaleX,
           y: rect.y / scaleY,
@@ -117,54 +120,48 @@ const Inpaint = ({ imageUrl }) => {
           height: rect.height / scaleY
         }));
         formData['box'] = adjustedRectangles;
+        formData['sliderValue'] = sliderValue;
         console.log(formData)
         const res = await inPaintImage(formData, showErrorNotification, showSuccessNotification)
         console.log(res)
         if (res !== undefined){
-          const path = res.result_path;
-          console.log(res.score);
-          
-          setImages(path)
+          setImages(res.img_base64s)
         }
       } else if (drawingMode === 'point'){
-        // Adjust the point coordinates
-        formData['img_path'] = imageUrl;
         const adjustedPoints = points.map(point => ({
           x: point.x / scaleX,
           y: point.y / scaleY
         }));
         formData['point'] = adjustedPoints;
+        formData['sliderValue'] = sliderValue;
         console.log(formData)
         const res = await inPaintImage(formData, showErrorNotification, showSuccessNotification)
         console.log(res)
         if (res !== undefined){
-          const path = res.result_path;
-          console.log(res);
-          
-          setImages(path)
+          setImages(res.img_base64s)
         }
       } else if (drawingMode === 'mask'){
+
         const adjustedMasks = masks.map(mask => ({
-          points: mask.points.map(point => ({
+          points: mask.map(point => ({
             x: point.x / scaleX,
             y: point.y / scaleY
           }))
         }));
         formData['mask'] = adjustedMasks;
+        const adjustedSliderValue = sliderValue / ((scaleX + scaleY) / 2);
+        formData['sliderValue'] = adjustedSliderValue;
         console.log(formData)
-        const res = inPaintImage(formData, showErrorNotification, showSuccessNotification)
+        const res = await inPaintImage(formData, showErrorNotification, showSuccessNotification)
         console.log(res)
+        if(res !== undefined){
+          setImages(res.img_base64s)
+        }
       }
       
-    } else if (inpaintMode === "fill"){
-
-    } else if (inpaintMode === "replace"){
-
     }
   }
-  // useEffect(() =>{
 
-  // },[images])
   return (
     <>
       <div className="mt-5 flex w-full flex-col lg:flex-row">
@@ -201,7 +198,7 @@ const Inpaint = ({ imageUrl }) => {
                   key={i}
                   points={mask.flatMap((p) => [p.x, p.y])}
                   stroke="green"
-                  strokeWidth={20}
+                  strokeWidth={sliderValue}
                   tension={0.5}
                   lineCap="round"
                   lineJoin="round"
@@ -219,7 +216,7 @@ const Inpaint = ({ imageUrl }) => {
             <div className="">
               <div className="font-bold">Select actions</div>
               <div className="form-control mt-2">
-                <label className="cursor-pointer label w-32">
+                <label className="cursor-pointer label w-48">
                   <span className="label-text">Draw Box</span>
                   <input type="checkbox" 
                     className="checkbox checkbox-primary" 
@@ -232,7 +229,7 @@ const Inpaint = ({ imageUrl }) => {
                 </label>
               </div>   
               <div className="form-control mt-2">
-                <label className="cursor-pointer label w-32">
+                <label className="cursor-pointer label w-48">
                   <span className="label-text">Draw Point</span>
                   <input type="checkbox" 
                     className="checkbox checkbox-primary" 
@@ -244,8 +241,8 @@ const Inpaint = ({ imageUrl }) => {
                   />
                 </label>
               </div>
-              {/* <div className="form-control mt-2">
-                <label className="cursor-pointer label w-32">
+              <div className="form-control mt-2">
+                <label className="cursor-pointer label w-48">
                   <span className="label-text">Draw Mask</span>
                   <input type="checkbox" 
                     className="checkbox checkbox-primary" 
@@ -256,7 +253,19 @@ const Inpaint = ({ imageUrl }) => {
                     }}
                   />
                 </label>
-              </div>   */}
+                
+              </div>  
+              <div>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={sliderValue}
+                  className="range"
+                  onChange={handleSliderChange} // Add onChange event handler
+                />
+                <p className="text-sm">Slider Value: {sliderValue}</p> {/* Display the current value */}
+              </div>
             </div>
             <div className="divider divider-horizontal"></div>
             <div className="">

@@ -20,14 +20,14 @@ def _inference(name=None, folder=None, image_path=None):
         low_res_img = Image.open(BytesIO(response.content)).convert("RGB")
         low_res_img = low_res_img.resize((128, 128))
     else:
-        low_res_img = Image.open(image_path)
+        low_res_img = Image.open(image_path).convert("RGB")
 
     prompt = "high quality high resolution uhd 4k image"
     upscaled_image = pipeline(prompt=prompt, image=low_res_img).images[0]
     image_name = f"upscaled_{name}.png" if name is not None else "upscaled.png"
-    img_save = os.path.join(folder, image_name)
+    img_save = os.path.join(folder, image_name) if name is not None else os.path.join(folder, 'upscaled.png')
     print(img_save)
     upscaled_image.save(img_save)
-    return img_save
+    return upscaled_image
 
 

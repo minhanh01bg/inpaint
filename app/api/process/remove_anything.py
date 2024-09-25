@@ -8,7 +8,12 @@ import numpy as np
 import cv2
 import random
 from urllib.parse import urlparse
-from utils_birefnet import random_string
+from utils_birefnet import random_string, numpy_to_base64, pil_to_base64
+import os
+import shutil
+from operator import itemgetter
+from pathlib import Path
+
 yolov8_model_path = './weights/yolov8n.pt'
 sam2_checkpoint = './sam2/checkpoints/sam2_hiera_large.pt'
 sam2_model_config = 'sam2_hiera_l.yaml'
@@ -17,8 +22,7 @@ lama_config = "./lama/configs/prediction/default.yaml"
 colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(10)]
 seg = SegmentAnything(yolov8_model_path, sam2_checkpoint, sam2_model_config)
 lama = InpaintModel(config_p=lama_config, ckpt_p=lama_ckpt, device=seg.device)
-import os
-import shutil
+
 
 def overlay(image, mask, color, alpha, resize=None):
     """Combines image and its segmentation mask into a single image.
@@ -59,9 +63,6 @@ def dilate_mask(mask, kernel_size):
     return dilated_mask
 
 def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
-    from operator import itemgetter
-    from pathlib import Path
-
     parsed_url = urlparse(img_path)
     app_path = parsed_url.path.split('app', 1)[-1]
     img_path = 'app' + app_path
@@ -88,7 +89,7 @@ def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
 
     path = []
     score = []
-
+    img_base64s = []
     # Kiểm tra xem `masks` có phải là một danh sách hay không
     if masks.ndim==4:
         # Trường hợp nhiều mask
@@ -108,20 +109,22 @@ def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
                 best_mask = dilate_mask(best_mask, dilate_kernel_size)
 
             # Lưu mask tốt nhất
-            mask_p = out_dir / f"object_{obj_idx + 1}_best_mask.png"
-            save_array_to_img(best_mask, mask_p)
+            # mask_p = out_dir / f"object_{obj_idx + 1}_best_mask.png"
+            # save_array_to_img(best_mask, mask_p)
 
-            img_mask_p = out_dir / f"object_{obj_idx + 1}_with_best_mask.png"
             img_mask = overlay(img, best_mask, colors[best_iou_idx % len(colors)], 0.5)
-            save_array_to_img(img_mask, img_mask_p)
+            path.append(numpy_to_base64(img_mask))
+            # img_mask_p = out_dir / f"object_{obj_idx + 1}_with_best_mask.png"
+            # save_array_to_img(img_mask, img_mask_p)
 
             # Inpainting sử dụng mask tốt nhất
-            img_inpainted_p = out_dir / f"object_{obj_idx + 1}_inpainted_best_mask.png"
             img_inpainted = lama.predict(img=img, mask=best_mask)
-            path.append(str(img_inpainted_p))  # Ensure path is a string
+            img_base64s.append(numpy_to_base64(img_inpainted))
             score.append(f"{s:.2f}")
-            save_array_to_img(img_inpainted, img_inpainted_p)
 
+            # img_inpainted_p = out_dir / f"object_{obj_idx + 1}_inpainted_best_mask.png"
+            # path.append(str(img_inpainted_p))  # Ensure path is a string
+            # save_array_to_img(img_inpainted, img_inpainted_p)
     else:
         # Trường hợp chỉ có một mask duy nhất
         print("Processing single object")
@@ -137,19 +140,88 @@ def rem_box_point(img_path, boxs=None, points=None, dilate_kernel_size=None):
         if dilate_kernel_size is not None:
             best_mask = dilate_mask(best_mask, dilate_kernel_size)
 
-        # Lưu mask tốt nhất
-        mask_p = out_dir / f"object_1_best_mask.png"
-        save_array_to_img(best_mask, mask_p)
+        # save best mask
+        # mask_p = out_dir / f"object_1_best_mask.png"
+        # save_array_to_img(best_mask, mask_p)
 
-        img_mask_p = out_dir / f"object_1_with_best_mask.png"
         img_mask = overlay(img, best_mask, colors[best_iou_idx % len(colors)], 0.5)
-        save_array_to_img(img_mask, img_mask_p)
+        path.append(numpy_to_base64(img_mask))
+        # img_mask_p = out_dir / f"object_1_with_best_mask.png"
+        # save_array_to_img(img_mask, img_mask_p)
 
-        # Inpainting sử dụng mask tốt nhất
-        img_inpainted_p = out_dir / f"{random_string(40)}.png"
+        # Inpainting best mask
         img_inpainted = lama.predict(img=img, mask=best_mask)
-        path.append(str(img_inpainted_p))  # Ensure path is a string
         score.append(f"{s:.2f}")
-        save_array_to_img(img_inpainted, img_inpainted_p)
+        img_base64s.append(numpy_to_base64(img_inpainted))
+        
+        # img_inpainted_p = out_dir / f"{random_string(40)}.png"
+        # path.append(str(img_inpainted_p))  # Ensure path is a string
+        # save_array_to_img(img_inpainted, img_inpainted_p)
     
-    return path, score
+    return path, score, img_base64s
+
+def create_mask_image(image_path: str, masks, sliderValue, output_path: str):
+    # Load the original image
+    img = cv2.imread(image_path)
+    if img is None:
+        raise ValueError(f"Image at path {image_path} could not be loaded.")
+
+    # Create a mask image with the same dimensions as the original image
+    mask_image = np.zeros((img.shape[0], img.shape[1]), dtype=np.uint8)
+
+    # Iterate over each mask and draw lines between points
+    for mask in masks:
+        points = mask.points
+        for i in range(len(points)):
+            if (i + 1) % len(points)== 0:
+                continue
+            start_point = (int(points[i].x), int(points[i].y))
+            end_point = (int(points[(i + 1) % len(points)].x), int(points[(i + 1) % len(points)].y))  # Wrap around to the first point
+            # Draw line segment
+            cv2.line(mask_image, start_point, end_point, color=(255, 255, 255), thickness=int(sliderValue))
+
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    return mask_image, img
+
+def rem_mask(img_path, masks=None,sliderValue=None, dilate_kernel_size=None):
+    
+
+    parsed_url = urlparse(img_path)
+    app_path = parsed_url.path.split('app', 1)[-1]
+    img_path = 'app' + app_path
+    folder = img_path.split("/")[0] + "/" + img_path.split("/")[1] + "/" + img_path.split("/")[2]
+    print(img_path)
+    print(folder)
+
+    best_mask, img = create_mask_image(image_path=img_path,masks=masks,sliderValue=sliderValue, output_path='app/media/test.png')
+    print(best_mask.shape, img.shape)
+    out_dir = Path(f"{folder}/results")
+    if out_dir.exists():
+        # Remove the folder and its contents
+        shutil.rmtree(out_dir)
+
+    # Recreate the folder
+    os.makedirs(out_dir)
+    path = []
+    score = []
+    img_base64s = []
+    if dilate_kernel_size is not None:
+        best_mask = dilate_mask(best_mask, dilate_kernel_size)
+
+        # mask_p = out_dir / f"object_1_best_mask.png"
+        # save_array_to_img(best_mask, mask_p)
+
+        img_mask = overlay(img, best_mask, colors[0 % len(colors)], 0.5)
+        # img_mask_p = out_dir / f"object_1_with_best_mask.png"
+        # save_array_to_img(img_mask, img_mask_p)
+        path.append(numpy_to_base64(img_mask))
+        img_inpainted = lama.predict(img=img, mask=best_mask)
+
+        score.append("")
+        img_base64s.append(numpy_to_base64(img_inpainted))
+
+        # img_inpainted_p = out_dir / f"{random_string(40)}.png"
+        # path.append(str(img_inpainted_p))  # Ensure path is a string
+        # save_array_to_img(img_inpainted, img_inpainted_p)
+    
+    return path, score, img_base64s

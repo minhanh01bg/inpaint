@@ -24,7 +24,7 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
         const statusRes = await checkImageStatus(imageId); // Gọi API kiểm tra trạng thái ảnh
         console.log(statusRes)
         if (statusRes.status === 'completed') {
-          setUpscaled(statusRes.upscaled_image);
+          setUpscaled(statusRes.result);
           showSuccessNotification("Image upscaled successfully!");
           clearInterval(intervalId); // Dừng polling khi đã có kết quả
           setIsProcessing(false);
@@ -32,18 +32,18 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
       } catch (err) {
         // showErrorNotification("Error checking image status");
       }
-    }, 5000); // Kiểm tra sau mỗi 5 giây
+    }, 5000); // check after 5 second
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setIsProcessing(true); // Bắt đầu quá trình xử lý
+    setIsProcessing(true);
     const res = await postImages(formData, showErrorNotification);
     if (res !== undefined) {
-      setFile(res.image_path);
+      setFile(res.image_base64);
       console.log(res.image_id);
-      showSuccessNotification('Image upload successful! Processing started...');
-      checkStatus(res.image_id); // Gửi image ID để bắt đầu polling
+      showSuccessNotification(res.message);
+      checkStatus(res.image_id);
     }
   };
 
