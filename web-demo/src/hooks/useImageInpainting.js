@@ -12,7 +12,7 @@ const useImageInpainting = (showErrorNotification, showSuccessNotification) => {
     reader.onloadend = () => {
       // Cập nhật formData với Base64 của file
       const base64String = reader.result.replace(/^data:image\/\w+;base64,/, '');
-      console.log(base64String)
+      // console.log(base64String)
       setFile(base64String)
     };
   

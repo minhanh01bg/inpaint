@@ -33,8 +33,3 @@ class RemoveAnythingRequest(BaseModel):
 class InputWrapper(BaseModel):
     input: RemoveAnythingRequest
     
-class RemoveAnythingResponse(BaseModel):
-    message: str
-    img_path: str
-    path: List[str]
-    score: str

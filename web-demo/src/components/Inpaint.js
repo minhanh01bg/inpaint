@@ -138,9 +138,10 @@ const Inpaint = ({ imageUrl }) => {
         }));
         updatedFormData = {
           input: {
-            ...updatedFormData.input,
+            // ...updatedFormData.input,
             box: adjustedRectangles,
             sliderValue: sliderValue,
+            img_path: imageUrl,
           },
         };
         console.log(updatedFormData)
@@ -156,9 +157,10 @@ const Inpaint = ({ imageUrl }) => {
         }));
         updatedFormData = {
           input: {
-            ...updatedFormData.input,
+            // ...updatedFormData.input,
             point: adjustedPoints,
             sliderValue: sliderValue,
+            img_path: imageUrl,
           },
         };
         console.log(updatedFormData)
@@ -179,9 +181,10 @@ const Inpaint = ({ imageUrl }) => {
         const adjustedSliderValue = sliderValue / ((scaleX + scaleY) / 2);
         updatedFormData = {
           input: {
-            ...updatedFormData.input,
+            // ...updatedFormData.input,
             mask: adjustedMasks,
             sliderValue: adjustedSliderValue,
+            img_path: imageUrl,
           },
         };
         console.log(updatedFormData)
