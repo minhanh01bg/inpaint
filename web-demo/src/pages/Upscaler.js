@@ -2,8 +2,6 @@ import Title from '../templates/Title';
 import ResetButton from '../redux/resetButton'
 import useImageUpscaler from '../hooks/useImageUpscaler';
 import { useNotification } from '../contexts/NotificationContext';
-import { useState } from 'react'
-import config from '../configs';
 import Base64Image from '../templates/Base64Image';
 function Upscaler() {
   const { showErrorNotification, showSuccessNotification } = useNotification();

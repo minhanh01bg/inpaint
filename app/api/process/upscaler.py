@@ -10,7 +10,7 @@ pipeline = StableDiffusionUpscalePipeline.from_pretrained(model_id, torch_dtype=
 device = "cuda" if torch.cuda.is_available() else "cpu"
 pipeline = pipeline.to(device)
 
-def _inference(image_base64=None):
+def _inference(image_base64=None, image_init64=None):
     # let's download an  image
     if image_base64 is None:
         url = "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd2-upscale/low_res_cat.png"
@@ -23,6 +23,6 @@ def _inference(image_base64=None):
 
     prompt = "high quality high resolution uhd 4k image"
     upscaled_image = pipeline(prompt=prompt, image=low_res_img).images[0]
-    return upscaled_image
+    return upscaled_image, image_init64
 
 

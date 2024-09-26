@@ -11,12 +11,15 @@ router = APIRouter()
 
 processing_status = {}
 
-def process_image_upscaling(image_id,image_base64):
-    upscaled_image = _inference(image_base64=image_base64)
+def process_image_upscaling(image_id,image_base64, image_init64):
+    upscaled_image, image_init64 = _inference(image_base64=image_base64, image_init64=image_init64)
     upscaled_image = pil_to_base64(upscaled_image)
     processing_status[image_id] = {
-        "status":"completed",
-        "result": upscaled_image
+        "status":"COMPLETED",
+        "output": {
+            "result": upscaled_image,
+            "image_init":image_init64
+        }
     }
     return upscaled_image
 
@@ -29,21 +32,21 @@ async def upscaler_images(
     inp = jsonable_encoder(data.input)
     image_data = prepare_image_input(inp)
     # process
-    processing_status[r] = {"status":"processing"}
+    processing_status[r] = {"status":"IN_QUEUE"}
     # upscale w BackgroundTasks
-    background_tasks.add_task(process_image_upscaling, r, io.BytesIO(image_data))
+    background_tasks.add_task(process_image_upscaling, r, io.BytesIO(image_data), base64.b64encode(image_data).decode('utf-8'))
 
-    return {"message": "Image is being processed in the background", "image_id": r, "image_base64": base64.b64encode(image_data).decode('utf-8')}
+    return {"message": "Image is being processed in the background", "image_id": r}
 
-# API để kiểm tra trạng thái xử lý của ảnh
+# API status
 @router.get("/upscaler/status/{image_id}", status_code=status.HTTP_200_OK)
 async def get_image_status(image_id: str):
     folder = f"app/media/{image_id}"
     status = processing_status.get(image_id, "not found")
     # print(status)
-    if status["status"] == "completed":
+    if status["status"] == "COMPLETED":
         return status
-    elif status["status"] == "processing":
+    elif status["status"] == "IN_QUEUE":
         return status
     else:
         return {"status": "not found"}

@@ -15,9 +15,9 @@ const ProtectedRoutes = () => {
 
   return (
     <Routes>
-      <Route path='home' element={<Home />} />
+      <Route path='background_removal' element={<Home />} />
       <Route path='inpainting' element={<Inpainting />} />
-      <Route path="users" element={isAdmin ? <Users />:<Navigate to="/home" />} />
+      <Route path="users" element={isAdmin ? <Users />:<Navigate to="/background_removal" />} />
       <Route path="upscaling" element={<Upscaler />}/>
     </Routes>
   );

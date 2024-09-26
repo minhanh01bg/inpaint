@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialNavigation = {
   navigationItems: [
-    { name: 'Background removal', href: '/home', current: true },
+    { name: 'Background removal', href: '/background_removal', current: true },
     { name: 'Inpainting', href: '/inpainting', current: false },
     { name: 'Upscaling image', href: '/upscaling', current: false },
     { name: 'Users', href: '/users', current: false },
@@ -31,6 +31,10 @@ const navigationSlice = createSlice({
         state.isOpen = true;
       }
     },
+    toggleLogin(state) {
+      state.isPinned = true;
+      state.isOpen = true;
+    },
     toggleOpen(state){
       state.isOpen = !state.isOpen;
       if(state.isOpen === false){
@@ -43,6 +47,6 @@ const navigationSlice = createSlice({
   },
 });
 
-export const { setActive, filterAdmin, togglePin, toggleOpen,toggleThemCupcake } = navigationSlice.actions;
+export const { setActive, filterAdmin, togglePin, toggleLogin, toggleOpen,toggleThemCupcake } = navigationSlice.actions;
 
 export default navigationSlice.reducer;

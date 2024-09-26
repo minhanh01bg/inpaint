@@ -2,8 +2,6 @@ import Title from '../templates/Title';
 import ResetButton from '../redux/resetButton'
 import useImageInpainting from '../hooks/useImageInpainting';
 import { useNotification } from '../contexts/NotificationContext';
-import { useState } from 'react'
-import config from '../configs';
 import Inpaint from '../components/Inpaint'
 function Inpainting() {
   const { showErrorNotification, showSuccessNotification } = useNotification();

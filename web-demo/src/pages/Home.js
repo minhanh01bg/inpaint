@@ -2,8 +2,6 @@ import Title from '../templates/Title';
 import ResetButton from '../redux/resetButton'
 import useImageUpload from '../hooks/useImageUpload';
 import { useNotification } from '../contexts/NotificationContext';
-import { useState } from 'react'
-import config from '../configs';
 import Base64Image from '../templates/Base64Image';
 function Home() {
   const { showErrorNotification, showSuccessNotification } = useNotification();

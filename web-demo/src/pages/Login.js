@@ -9,7 +9,7 @@ import config from '../configs';
 import { useNotification } from '../contexts/NotificationContext';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { setActive, filterAdmin, togglePin } from '../redux/slices/navigationSlice';
+import { setActive, filterAdmin, togglePin, toggleLogin } from '../redux/slices/navigationSlice';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -70,9 +70,9 @@ function Login() {
         console.log('res', res)
         setToken(res.data.access_token);
         showSuccessNotification('Login success');
-        window.location.href = '/home'
+        window.location.href = '/background_removal'
         dispatch(setActive('Background removal'));
-        dispatch(togglePin());
+        dispatch(toggleLogin());
         
       })
       .catch(err => {
