@@ -3,8 +3,8 @@ import { persistor } from './store';
 
 const ResetButton = () => {
   const handleReset = () => {
-    persistor.purge(); // Xóa localStorage
-    window.location.reload(); // Reload trang để áp dụng thay đổi
+    persistor.purge();
+    window.location.reload();
   };
 
   return <button className='btn btn-ouline btn-primary' onClick={handleReset}>Reset</button>;

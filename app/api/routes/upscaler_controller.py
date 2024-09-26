@@ -41,9 +41,11 @@ async def upscaler_images(
 # API status
 @router.get("/upscaler/status/{id}", status_code=status.HTTP_200_OK)
 async def get_image_status(id: str):
-    folder = f"app/media/{id}"
     status = processing_status.get(id, "not found")
-    # print(status)
+    
+    if not status or not isinstance(status, dict):
+        return {"status": "not found"}
+    
     if status["status"] == "COMPLETED":
         return status
     elif status["status"] == "IN_QUEUE":

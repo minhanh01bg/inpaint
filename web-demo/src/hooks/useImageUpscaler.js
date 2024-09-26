@@ -34,10 +34,10 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
   };
 
 
-  const checkStatus = async (imageId) => {
+  const checkStatus = async (Id) => {
     const intervalId = setInterval(async () => {
       try {
-        const statusRes = await checkImageStatus(imageId); // Gọi API kiểm tra trạng thái ảnh
+        const statusRes = await checkImageStatus(Id); // Gọi API kiểm tra trạng thái ảnh
         console.log(statusRes)
         if (statusRes.status === 'COMPLETED') {
           

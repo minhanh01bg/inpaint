@@ -1,0 +1,13 @@
+{
+    "delayTime": 1098,
+    "executionTime": 1590,
+    "id": "2e0d1f6a-868d-4933-9b6b-049eefea6e47-e1",
+    "output": {
+        "image": "",
+        "mask_base64": "",
+        "message": "Image processed successfully",
+        "result_base64": ""
+    },
+    "status": "COMPLETED",
+    "workerId": "vh320b4qjs6dso"
+}

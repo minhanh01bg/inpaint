@@ -7,6 +7,9 @@ export function getToken() {
 
 export async function checkToken(){
     const url = `${config.apiUrl}/users/me?permit_key=${config.permit_key}`;
+    if (config.check_server == true){
+        return [true, true]
+    }
     const token = getToken();
     if (!token) {
         return [false, false];

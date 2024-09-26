@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { postImages, getResult } from '../services/imagesService';
+import { postImages, removeBackground, checkImageStatus } from '../services/imagesService';
 import config from '../configs';
 const useImageUpload = (showErrorNotification, showSuccessNotification) => {
   const [formData, setFormData] = useState({
@@ -35,14 +35,46 @@ const useImageUpload = (showErrorNotification, showSuccessNotification) => {
     }
   };
   
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   // Handle form submission
+  //   console.log(formData)
+  //   const res = await postImages(formData, showErrorNotification);
+  //   if (res !== undefined) {
+  //     setFile(`data:image/png;base64,${res.image}`);
+  //     setMask(`data:image/png;base64,${res.result_base64}`)
+  //   }
+  // };
   const handleSubmit = async (event) => {
     event.preventDefault();
-    // Handle form submission
-    console.log(formData)
-    const res = await postImages(formData, showErrorNotification);
-    if (res !== undefined) {
-      setFile(`data:image/png;base64,${res.image}`);
-      setMask(`data:image/png;base64,${res.result_base64}`)
+    // Reset previous results
+    setFile(null);
+    setMask(null);
+
+    // Log form data (optional)
+    console.log(formData);
+
+    // Step 1: Call removeBackground to start the background task
+    const res = await removeBackground(formData, showErrorNotification);
+    if (res && res.id) {
+        const taskId = res.id;
+
+        // Step 2: Poll the status using checkImageStatus
+        const pollInterval = 2000; // Poll every 2 seconds
+        const intervalId = setInterval(async () => {
+            const statusRes = await checkImageStatus(taskId);
+            if (statusRes && statusRes.status === 'COMPLETED') {
+                console.log(statusRes);
+                setFile(`data:image/png;base64,${statusRes.output.image}`);
+                setMask(`data:image/png;base64,${statusRes.output.result_base64}`);
+                clearInterval(intervalId); 
+            } else if (statusRes && statusRes.status !== 'IN_QUEUE' && statusRes.status !== "IN_PROGRESS") {
+                clearInterval(intervalId); 
+                showErrorNotification("Error in processing the image.");
+            }
+        }, pollInterval); // Poll every 2 seconds
+    } else {
+        showErrorNotification("Failed to initiate background task.");
     }
   };
 

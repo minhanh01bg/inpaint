@@ -1,0 +1,48 @@
+1. Remove background
+1.1 Send request
+Api-post: https://api.runpod.ai/v2/as3ifh7dlsc011/run
+
+Api-key: O461H84OAYQK5UG9K5C24AR7XHMDRDEFSXCW4B5T
+Api-key này sẽ là key cho toàn bộ api.
+Mô tả một header:
+headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      Authorization:`Bearer {api-key}`
+},
+
+Khi mã hóa một hình ảnh thành base64 nó sẽ có dạng data:image/png;base64,{bytes}
+Ví dụ: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...
+
+Input-json cho remove background:
+{
+  "input": {
+    "source": "string", // dạng base64 không bao gồm data:image/png;base64, tức là phần bytes phía sau
+    "input_type": "string"
+  }
+}
+Output: output sẽ trả về dạng json
+{
+    id:"",
+    status:"IN_QUEUE"
+}
+
+1.2 Kiểm tra trạng thái của request:
+Trạng thái có 3 loại là IN_QUEUE, IN_PROGRESS và COMPLETED
+Api-post: https://api.runpod.ai/v2/as3ifh7dlsc011/status/:id
+header bên trên.
+Nếu là status COMPLETED output như sau:
+{
+    "delayTime": 1098,
+    "executionTime": 1590,
+    "id": "2e0d1f6a-868d-4933-9b6b-049eefea6e47-e1",
+    "output": {
+        "image": "", //hình ảnh ban đầu được truyền vào dạng byte base64 không bao gồm phần data:image/png;base64,
+        "mask_base64": "", //hình ảnh mask dạng byte base64 không bao gồm phần data:image/png;base64,
+        "message": "Image processed successfully",
+        "result_base64": "" //hình ảnh đã remove backgound dạng byte base64 không bao gồm phần data:image/png;base64,
+    },
+    "status": "COMPLETED",
+    "workerId": "vh320b4qjs6dso"
+}
+nếu là các trạng thái khác nó sẽ trả về id và status.

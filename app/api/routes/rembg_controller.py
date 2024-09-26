@@ -79,9 +79,12 @@ async def rmbg_img2(
 
 @router.get("/remove_background2/status/{id}", status_code=status.HTTP_200_OK)
 async def get_image_status(id: str):
-
     status = processing_status.get(id, "not found")
-    # print(status)
+    print(status)
+    
+    if not status or not isinstance(status, dict):
+        return {"status": "not found"}
+    
     if status["status"] == "COMPLETED":
         return status
     elif status["status"] == "IN_QUEUE":

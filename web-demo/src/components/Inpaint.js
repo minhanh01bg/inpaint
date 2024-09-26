@@ -206,12 +206,12 @@ const Inpaint = ({ imageUrl }) => {
         const pollInterval = 2000;
         const intervalId = setInterval(async () => {
             const statusRes = await checkImageInpaintStatus(taskId);
-
+            console.log(statusRes)
             if (statusRes && statusRes.status === 'COMPLETED') {
                 console.log(statusRes);
                 setImages(statusRes.output.img_base64s);
                 clearInterval(intervalId); 
-            } else if (statusRes && statusRes.status !== 'IN_QUEUE') {
+            } else if (statusRes && statusRes.status !== 'IN_QUEUE' && statusRes.status !== "IN_PROGRESS") {
                 clearInterval(intervalId); // Stop polling on error or unknown status
                 showErrorNotification("Error in processing the image.");
             }

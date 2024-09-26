@@ -10,7 +10,7 @@ import { useNotification } from '../contexts/NotificationContext';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setActive, filterAdmin, togglePin, toggleLogin } from '../redux/slices/navigationSlice';
-
+import { persistor } from '../redux/store';
 function Login() {
   const [formData, setFormData] = useState({
     username: localStorage.getItem('username') || '',
@@ -49,6 +49,7 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    persistor.purge();
     console.log('Form submitted', formData);
     if (rememberMe) {
       localStorage.setItem('username', formData.username);

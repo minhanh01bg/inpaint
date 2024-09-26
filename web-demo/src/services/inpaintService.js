@@ -54,12 +54,16 @@ export const inPaintImage = async (formData, showErrorNotification, showSuccessN
 }
 
 export const inPaintImage2 = async (formData, showErrorNotification, showSuccessNotification) =>{
-  const url = `${config.apiUrl}/remove_anything2?permit_key=${config.permit_key}`;
+  let url = `${config.apiUrl}/remove_anything2?permit_key=${config.permit_key}`;
+  if (config.check_server){
+    url = `${config.apiInpainting}/run`
+  }
   const option = {
       method: 'POST',
       headers: {
           Accept: 'application/json',
          'Content-Type': 'application/json',
+         Authorization:`Bearer ${config.apiKeyRunpod}`
       },
   };
   try {
@@ -76,11 +80,32 @@ export const inPaintImage2 = async (formData, showErrorNotification, showSuccess
     }
   }
 }
-export const checkImageInpaintStatus = async (imageId) => {
-  try {
-    const response = await axios.get(`${config.apiUrl}/remove_anything2/status/${imageId}?permit_key=${config.permit_key}`);
-    return response.data;
-  } catch (error) {
-    throw new Error('Error checking image status');
+export const checkImageInpaintStatus = async (id) => {
+  if (config.check_server){
+    let url = `${config.apiInpainting}/status/${id}`
+    console.log(url)
+    try {
+      const option = {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization:`Bearer ${config.apiKeyRunpod}`
+        },
+      };
+      const response = await axios.post(url,{},option);
+      return response.data;
+    } catch (error) {
+      throw new Error('Error checking image status');
+    }
+  }
+  else{
+    let url = `${config.apiUrl}/remove_anything2/status/${id}?permit_key=${config.permit_key}`
+    try {
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      throw new Error('Error checking image status');
+    }
   }
 };
