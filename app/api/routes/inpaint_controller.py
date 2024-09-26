@@ -81,7 +81,40 @@ async def remove_anything(
     return {"image_id": image_id, "status":"IN_QUEUE"}
 
 
-@router.get("/remove_anything/status/{image_id}", status_code=status.HTTP_200_OK)
+
+@router.post('/remove_anything2', status_code=status.HTTP_200_OK)
+async def remove_anything2(
+    background_tasks: BackgroundTasks, 
+    request: InputWrapper
+):
+    # Validate the request data
+    if not request.input.is_valid_request:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Please provide either a box, point, or mask, but not multiple."
+        )
+    data = jsonable_encoder(request.input)
+    image_id = random_string(20)
+    processing_status[image_id] = {"status":"IN_QUEUE"}
+
+    img_path = data.get('img_path') # base64 string
+    if data.get('box'):
+        boxs = data.get('box')
+        
+        background_tasks.add_task(process_image_inpaint_bp, image_id, img_path, boxs, None, 15)
+
+    elif data.get('point'):
+        points = data.get('point')    
+        background_tasks.add_task(process_image_inpaint_bp, image_id, img_path, None, points, 15)
+
+    elif data.get('mask'):
+        mask = data.get('mask')
+        sliderValue = data.get('sliderValue')
+        background_tasks.add_task(process_image_inpaint_mask, image_id, img_path, sliderValue, mask, 15)
+
+    return {"image_id": image_id, "status":"IN_QUEUE"}
+
+@router.get("/remove_anything2/status/{image_id}", status_code=status.HTTP_200_OK)
 async def get_image_status(image_id: str):
     folder = f"app/media/{image_id}"
     status = processing_status.get(image_id, "not found")

@@ -4,6 +4,7 @@ import { inPaintImage } from '../services/inpaintService'
 import { useNotification } from '../contexts/NotificationContext';
 import config from "../configs";
 import ImageGallery from "../templates/ImageGallery";
+import {checkImageInpaintStatus, inPaintImage2} from '../services/inpaintService'
 const Inpaint = ({ imageUrl }) => {
   const [rectangles, setRectangles] = useState([]);
   const [shape, setShape] = useState([]);
@@ -39,7 +40,6 @@ const Inpaint = ({ imageUrl }) => {
     const base64Image = imageUrl.startsWith('data:image/')
       ? imageUrl
       : `data:image/jpeg;base64,${imageUrl}`;
-    // console.log(imageUrl) 
     img.src = base64Image;
     img.onload = () => {
       const originalWidth = img.width;
@@ -144,12 +144,12 @@ const Inpaint = ({ imageUrl }) => {
             img_path: imageUrl,
           },
         };
-        console.log(updatedFormData)
-        const res = await inPaintImage(updatedFormData, showErrorNotification, showSuccessNotification)
-        console.log(res)
-        if (res !== undefined){
-          setImages(res.img_base64s)
-        }
+        // console.log(updatedFormData)
+        // const res = await inPaintImage(updatedFormData, showErrorNotification, showSuccessNotification)
+        // console.log(res)
+        // if (res !== undefined){
+        //   setImages(res.img_base64s)
+        // }
       } else if (drawingMode === 'point'){
         const adjustedPoints = points.map(point => ({
           x: point.x / scaleX,
@@ -163,12 +163,12 @@ const Inpaint = ({ imageUrl }) => {
             img_path: imageUrl,
           },
         };
-        console.log(updatedFormData)
-        const res = await inPaintImage(updatedFormData, showErrorNotification, showSuccessNotification)
-        console.log(res)
-        if (res !== undefined){
-          setImages(res.img_base64s)
-        }
+        // console.log(updatedFormData)
+        // const res = await inPaintImage(updatedFormData, showErrorNotification, showSuccessNotification)
+        // console.log(res)
+        // if (res !== undefined){
+        //   setImages(res.img_base64s)
+        // }
       } else if (drawingMode === 'mask'){
 
         const adjustedMasks = masks.map(mask => ({
@@ -187,13 +187,35 @@ const Inpaint = ({ imageUrl }) => {
             img_path: imageUrl,
           },
         };
-        console.log(updatedFormData)
-        const res = await inPaintImage(updatedFormData, showErrorNotification, showSuccessNotification)
-        console.log(res)
-        if(res !== undefined){
-          setImages(res.img_base64s)
-        }
+        // console.log(updatedFormData)
+        // const res = await inPaintImage(updatedFormData, showErrorNotification, showSuccessNotification)
+        // console.log(res)
+        // if(res !== undefined){
+        //   setImages(res.img_base64s)
+        // }
       }
+    }
+    console.log(updatedFormData);
+
+    // Step 1: Call inPaintImage2 to start the task
+    const res = await inPaintImage2(updatedFormData, showErrorNotification, showSuccessNotification);
+    if (res && res.image_id) {
+        const taskId = res.image_id;
+
+        // Step 2: Poll the status using checkImageInpaintStatus
+        const pollInterval = 2000; // Poll every 2 seconds
+        const intervalId = setInterval(async () => {
+            const statusRes = await checkImageInpaintStatus(taskId);
+
+            if (statusRes && statusRes.status === 'COMPLETED') {
+                console.log(statusRes);
+                setImages(statusRes.output.img_base64s); // Set images when the task is done
+                clearInterval(intervalId); // Stop polling once the task is complete
+            } else if (statusRes && statusRes.status !== 'IN_QUEUE') {
+                clearInterval(intervalId); // Stop polling on error or unknown status
+                showErrorNotification("Error in processing the image.");
+            }
+        }, pollInterval); // Poll every 2 seconds
     }
   }
 
