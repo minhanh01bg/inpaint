@@ -44,7 +44,10 @@ def process_image_inpaint_mask(image_id, img_path, sliderValue, mask,dilate_kern
     return
 
 @router.post('/remove_anything', status_code=status.HTTP_200_OK)
-async def remove_anything(background_tasks: BackgroundTasks, request: InputWrapper):
+async def remove_anything(
+    # background_tasks: BackgroundTasks, 
+    request: InputWrapper
+):
     # Validate the request data
     if not request.input.is_valid_request:
         raise HTTPException(
@@ -58,22 +61,22 @@ async def remove_anything(background_tasks: BackgroundTasks, request: InputWrapp
     img_path = data.get('img_path') # base64 string
     if data.get('box'):
         boxs = data.get('box')
-        # path, score, img_base64s = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
-        # return {"mask_plot":path, "score":score,"img_base64s": img_base64s}
-        background_tasks.add_task(process_image_inpaint_bp, image_id, img_path, boxs, None, 15)
+        path, score, img_base64s = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
+        return {"mask_plot":path, "score":score,"img_base64s": img_base64s}
+        # background_tasks.add_task(process_image_inpaint_bp, image_id, img_path, boxs, None, 15)
 
     elif data.get('point'):
         points = data.get('point')    
-        # path, score,img_base64s = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
-        # return {"mask_plot":path, "score":score, "img_base64s": img_base64s}
-        background_tasks.add_task(process_image_inpaint_bp, image_id, img_path, None, points, 15)
+        path, score,img_base64s = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
+        return {"mask_plot":path, "score":score, "img_base64s": img_base64s}
+        # background_tasks.add_task(process_image_inpaint_bp, image_id, img_path, None, points, 15)
 
     elif data.get('mask'):
         mask = data.get('mask')
         sliderValue = data.get('sliderValue')
-        # path, score, img_base64s = rem_mask(img_path=img_path,sliderValue=sliderValue, masks=mask,dilate_kernel_size=15)
-        # return {"mask_plot":path, "score":score,"img_base64s": img_base64s}
-        background_tasks.add_task(process_image_inpaint_mask, image_id, img_path, sliderValue, mask, 15)
+        path, score, img_base64s = rem_mask(img_path=img_path,sliderValue=sliderValue, masks=mask,dilate_kernel_size=15)
+        return {"mask_plot":path, "score":score,"img_base64s": img_base64s}
+        # background_tasks.add_task(process_image_inpaint_mask, image_id, img_path, sliderValue, mask, 15)
 
     return {"image_id": image_id, "status":"IN_QUEUE"}
 
