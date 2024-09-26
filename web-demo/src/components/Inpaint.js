@@ -199,18 +199,18 @@ const Inpaint = ({ imageUrl }) => {
 
     // Step 1: Call inPaintImage2 to start the task
     const res = await inPaintImage2(updatedFormData, showErrorNotification, showSuccessNotification);
-    if (res && res.image_id) {
-        const taskId = res.image_id;
+    if (res && res.id) {
+        const taskId = res.id;
 
         // Step 2: Poll the status using checkImageInpaintStatus
-        const pollInterval = 2000; // Poll every 2 seconds
+        const pollInterval = 2000;
         const intervalId = setInterval(async () => {
             const statusRes = await checkImageInpaintStatus(taskId);
 
             if (statusRes && statusRes.status === 'COMPLETED') {
                 console.log(statusRes);
-                setImages(statusRes.output.img_base64s); // Set images when the task is done
-                clearInterval(intervalId); // Stop polling once the task is complete
+                setImages(statusRes.output.img_base64s);
+                clearInterval(intervalId); 
             } else if (statusRes && statusRes.status !== 'IN_QUEUE') {
                 clearInterval(intervalId); // Stop polling on error or unknown status
                 showErrorNotification("Error in processing the image.");

@@ -11,10 +11,10 @@ router = APIRouter()
 
 processing_status = {}
 
-def process_image_upscaling(image_id,image_base64, image_init64):
+def process_image_upscaling(id,image_base64, image_init64):
     upscaled_image, image_init64 = _inference(image_base64=image_base64, image_init64=image_init64)
     upscaled_image = pil_to_base64(upscaled_image)
-    processing_status[image_id] = {
+    processing_status[id] = {
         "status":"COMPLETED",
         "output": {
             "result": upscaled_image,
@@ -36,13 +36,13 @@ async def upscaler_images(
     # upscale w BackgroundTasks
     background_tasks.add_task(process_image_upscaling, r, io.BytesIO(image_data), base64.b64encode(image_data).decode('utf-8'))
 
-    return {"message": "Image is being processed in the background", "image_id": r}
+    return {"message": "Image is being processed in the background", "id": r}
 
 # API status
-@router.get("/upscaler/status/{image_id}", status_code=status.HTTP_200_OK)
-async def get_image_status(image_id: str):
-    folder = f"app/media/{image_id}"
-    status = processing_status.get(image_id, "not found")
+@router.get("/upscaler/status/{id}", status_code=status.HTTP_200_OK)
+async def get_image_status(id: str):
+    folder = f"app/media/{id}"
+    status = processing_status.get(id, "not found")
     # print(status)
     if status["status"] == "COMPLETED":
         return status

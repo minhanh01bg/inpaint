@@ -59,9 +59,9 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
     console.log(formData)
     const res = await postImages(formData, showErrorNotification);
     if (res !== undefined) {
-      console.log(res.image_id);
+      console.log(res.id);
       showSuccessNotification(res.message);
-      checkStatus(res.image_id);
+      checkStatus(res.id);
     }
   };
 

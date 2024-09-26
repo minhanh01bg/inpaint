@@ -19,9 +19,9 @@ from fastapi.encoders import jsonable_encoder
 router = APIRouter()
 processing_status = {}
 
-def process_image_inpaint_bp(image_id, img_path, boxs, points, dilate_kernel_size):
+def process_image_inpaint_bp(id, img_path, boxs, points, dilate_kernel_size):
     path, score,img_base64s = rem_box_point(img_path=img_path, boxs=boxs, points=points, dilate_kernel_size=dilate_kernel_size)
-    processing_status[image_id] = {
+    processing_status[id] = {
         "status":"COMPLETED",
         "output": {
             "mask_plot":path, 
@@ -31,9 +31,9 @@ def process_image_inpaint_bp(image_id, img_path, boxs, points, dilate_kernel_siz
     }
     return
 
-def process_image_inpaint_mask(image_id, img_path, sliderValue, mask,dilate_kernel_size):
+def process_image_inpaint_mask(id, img_path, sliderValue, mask,dilate_kernel_size):
     path, score, img_base64s = rem_mask(img_path=img_path,sliderValue=sliderValue, masks=mask,dilate_kernel_size=dilate_kernel_size)
-    processing_status[image_id] = {
+    processing_status[id] = {
         "status":"COMPLETED",
         "output": {
             "mask_plot":path, 
@@ -55,32 +55,30 @@ async def remove_anything(
             detail="Please provide either a box, point, or mask, but not multiple."
         )
     data = jsonable_encoder(request.input)
-    image_id = random_string(20)
-    processing_status[image_id] = {"status":"IN_QUEUE"}
+    id = random_string(20)
+    processing_status[id] = {"status":"IN_QUEUE"}
 
     img_path = data.get('img_path') # base64 string
     if data.get('box'):
         boxs = data.get('box')
         path, score, img_base64s = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
         return {"mask_plot":path, "score":score,"img_base64s": img_base64s}
-        # background_tasks.add_task(process_image_inpaint_bp, image_id, img_path, boxs, None, 15)
+        
 
     elif data.get('point'):
         points = data.get('point')    
         path, score,img_base64s = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
         return {"mask_plot":path, "score":score, "img_base64s": img_base64s}
-        # background_tasks.add_task(process_image_inpaint_bp, image_id, img_path, None, points, 15)
+        
 
     elif data.get('mask'):
         mask = data.get('mask')
         sliderValue = data.get('sliderValue')
         path, score, img_base64s = rem_mask(img_path=img_path,sliderValue=sliderValue, masks=mask,dilate_kernel_size=15)
         return {"mask_plot":path, "score":score,"img_base64s": img_base64s}
-        # background_tasks.add_task(process_image_inpaint_mask, image_id, img_path, sliderValue, mask, 15)
+        
 
-    return {"image_id": image_id, "status":"IN_QUEUE"}
-
-
+    return {"id": id, "status":"IN_QUEUE"}
 
 @router.post('/remove_anything2', status_code=status.HTTP_200_OK)
 async def remove_anything2(
@@ -94,30 +92,30 @@ async def remove_anything2(
             detail="Please provide either a box, point, or mask, but not multiple."
         )
     data = jsonable_encoder(request.input)
-    image_id = random_string(20)
-    processing_status[image_id] = {"status":"IN_QUEUE"}
+    id = random_string(20)
+    processing_status[id] = {"status":"IN_QUEUE"}
 
     img_path = data.get('img_path') # base64 string
     if data.get('box'):
         boxs = data.get('box')
         
-        background_tasks.add_task(process_image_inpaint_bp, image_id, img_path, boxs, None, 15)
+        background_tasks.add_task(process_image_inpaint_bp, id, img_path, boxs, None, 15)
 
     elif data.get('point'):
         points = data.get('point')    
-        background_tasks.add_task(process_image_inpaint_bp, image_id, img_path, None, points, 15)
+        background_tasks.add_task(process_image_inpaint_bp, id, img_path, None, points, 15)
 
     elif data.get('mask'):
         mask = data.get('mask')
         sliderValue = data.get('sliderValue')
-        background_tasks.add_task(process_image_inpaint_mask, image_id, img_path, sliderValue, mask, 15)
+        background_tasks.add_task(process_image_inpaint_mask, id, img_path, sliderValue, mask, 15)
 
-    return {"image_id": image_id, "status":"IN_QUEUE"}
+    return {"id": id, "status":"IN_QUEUE"}
 
-@router.get("/remove_anything2/status/{image_id}", status_code=status.HTTP_200_OK)
-async def get_image_status(image_id: str):
-    folder = f"app/media/{image_id}"
-    status = processing_status.get(image_id, "not found")
+@router.get("/remove_anything2/status/{id}", status_code=status.HTTP_200_OK)
+async def get_image_status(id: str):
+
+    status = processing_status.get(id, "not found")
     # print(status)
     if status["status"] == "COMPLETED":
         return status
