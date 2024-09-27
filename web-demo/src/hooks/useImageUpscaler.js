@@ -41,8 +41,8 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
         console.log(statusRes)
         if (statusRes.status === 'COMPLETED') {
           
-          setUpscaled(`data:image/png;base64,${statusRes.output.result}`);
-          setFile(`data:image/png;base64,${statusRes.output.image_init}`);
+          setUpscaled(`data:image/png;base64,${statusRes.output.result_base64}`);
+          setFile(`data:image/png;base64,${statusRes.output.image}`);
           showSuccessNotification("Image upscaled successfully!");
           clearInterval(intervalId); // Dừng polling khi đã có kết quả
           setIsProcessing(false);

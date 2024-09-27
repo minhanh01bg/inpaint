@@ -19,7 +19,7 @@ class Mask(BaseModel):
 
 # Model to accept the user input for the request
 class RemoveAnythingRequest(BaseModel):
-    img_path: str = Field(..., description="The URL or path to the image")
+    source: str = Field(..., description="The URL or path to the image")
     box: Optional[List[Box]] = None  # Optional, only one should be sent at a time
     point: Optional[List[Point]] = None
     mask: Optional[List[Mask]] = None

@@ -24,9 +24,9 @@ def process_image_inpaint_bp(id, img_path, boxs, points, dilate_kernel_size):
     processing_status[id] = {
         "status":"COMPLETED",
         "output": {
-            "mask_plot":path, 
+            "mask_base64":path, 
             "score":score, 
-            "img_base64s": img_base64s
+            "result_base64": img_base64s
         }
     }
     return
@@ -36,9 +36,9 @@ def process_image_inpaint_mask(id, img_path, sliderValue, mask,dilate_kernel_siz
     processing_status[id] = {
         "status":"COMPLETED",
         "output": {
-            "mask_plot":path, 
+            "mask_base64":path, 
             "score":score, 
-            "img_base64s": img_base64s
+            "result_base64": img_base64s
         }
     }
     return
@@ -58,24 +58,24 @@ async def remove_anything(
     id = random_string(20)
     processing_status[id] = {"status":"IN_QUEUE"}
 
-    img_path = data.get('img_path') # base64 string
+    img_path = data.get('source') # base64 string
     if data.get('box'):
         boxs = data.get('box')
         path, score, img_base64s = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
-        return {"mask_plot":path, "score":score,"img_base64s": img_base64s}
+        return {"mask_base64":path, "score":score,"result_base64": img_base64s}
         
 
     elif data.get('point'):
         points = data.get('point')    
         path, score,img_base64s = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
-        return {"mask_plot":path, "score":score, "img_base64s": img_base64s}
+        return {"mask_base64":path, "score":score, "result_base64": img_base64s}
         
 
     elif data.get('mask'):
         mask = data.get('mask')
         sliderValue = data.get('sliderValue')
         path, score, img_base64s = rem_mask(img_path=img_path,sliderValue=sliderValue, masks=mask,dilate_kernel_size=15)
-        return {"mask_plot":path, "score":score,"img_base64s": img_base64s}
+        return {"mask_base64":path, "score":score,"result_base64": img_base64s}
         
 
     return {"id": id, "status":"IN_QUEUE"}
@@ -95,7 +95,7 @@ async def remove_anything2(
     id = random_string(20)
     processing_status[id] = {"status":"IN_QUEUE"}
 
-    img_path = data.get('img_path') # base64 string
+    img_path = data.get('source') # base64 string
     if data.get('box'):
         boxs = data.get('box')
         

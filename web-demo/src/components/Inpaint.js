@@ -19,7 +19,7 @@ const Inpaint = ({ imageUrl }) => {
   
   const [formData, setFormData] = useState({
     input: {
-      img_path: '',
+      source: '',
       box: [],
       point: [],
       mask: [],
@@ -124,7 +124,7 @@ const Inpaint = ({ imageUrl }) => {
     let updatedFormData = {
       input: {
         ...formData.input,
-        img_path: imageUrl,
+        source: imageUrl,
       },
     };
 
@@ -138,18 +138,11 @@ const Inpaint = ({ imageUrl }) => {
         }));
         updatedFormData = {
           input: {
-            // ...updatedFormData.input,
             box: adjustedRectangles,
             sliderValue: sliderValue,
-            img_path: imageUrl,
+            source: imageUrl,
           },
         };
-        // console.log(updatedFormData)
-        // const res = await inPaintImage(updatedFormData, showErrorNotification, showSuccessNotification)
-        // console.log(res)
-        // if (res !== undefined){
-        //   setImages(res.img_base64s)
-        // }
       } else if (drawingMode === 'point'){
         const adjustedPoints = points.map(point => ({
           x: point.x / scaleX,
@@ -157,18 +150,11 @@ const Inpaint = ({ imageUrl }) => {
         }));
         updatedFormData = {
           input: {
-            // ...updatedFormData.input,
             point: adjustedPoints,
             sliderValue: sliderValue,
-            img_path: imageUrl,
+            source: imageUrl,
           },
         };
-        // console.log(updatedFormData)
-        // const res = await inPaintImage(updatedFormData, showErrorNotification, showSuccessNotification)
-        // console.log(res)
-        // if (res !== undefined){
-        //   setImages(res.img_base64s)
-        // }
       } else if (drawingMode === 'mask'){
 
         const adjustedMasks = masks.map(mask => ({
@@ -181,18 +167,11 @@ const Inpaint = ({ imageUrl }) => {
         const adjustedSliderValue = sliderValue / ((scaleX + scaleY) / 2);
         updatedFormData = {
           input: {
-            // ...updatedFormData.input,
             mask: adjustedMasks,
             sliderValue: adjustedSliderValue,
-            img_path: imageUrl,
+            source: imageUrl,
           },
         };
-        // console.log(updatedFormData)
-        // const res = await inPaintImage(updatedFormData, showErrorNotification, showSuccessNotification)
-        // console.log(res)
-        // if(res !== undefined){
-        //   setImages(res.img_base64s)
-        // }
       }
     }
     console.log(updatedFormData);
@@ -209,7 +188,7 @@ const Inpaint = ({ imageUrl }) => {
             console.log(statusRes)
             if (statusRes && statusRes.status === 'COMPLETED') {
                 console.log(statusRes);
-                setImages(statusRes.output.img_base64s);
+                setImages(statusRes.output.result_base64);
                 clearInterval(intervalId); 
             } else if (statusRes && statusRes.status !== 'IN_QUEUE' && statusRes.status !== "IN_PROGRESS") {
                 clearInterval(intervalId); // Stop polling on error or unknown status

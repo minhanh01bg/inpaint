@@ -17,8 +17,8 @@ def process_image_upscaling(id,image_base64, image_init64):
     processing_status[id] = {
         "status":"COMPLETED",
         "output": {
-            "result": upscaled_image,
-            "image_init":image_init64
+            "result_base64": upscaled_image,
+            "image":image_init64
         }
     }
     return upscaled_image
