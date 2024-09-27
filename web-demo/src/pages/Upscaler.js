@@ -32,7 +32,7 @@ function Upscaler() {
       img.onload = () => {
         // Kiểm tra kích thước ảnh
         if (img.width > 1000 || img.height > 1000) {
-          setErrorMessage('Image size must be less than 1000px on either side');
+          setErrorMessage('Image size must be less than 1024px on either side');
         } else {
           setErrorMessage(''); // Xóa thông báo lỗi nếu kích thước hợp lệ
           handleFileChangeHook(e); // Gọi hàm từ hook sau khi kiểm tra
