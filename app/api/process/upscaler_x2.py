@@ -21,7 +21,12 @@ def _inference_x2(image_base64=None, image_init64=None):
         low_res_img = Image.open(BytesIO(response.content)).convert("RGB")
         low_res_img = low_res_img.resize((128, 128))
     else:
+        # Resize the image to the closest size that is a multiple of 64
         low_res_img = Image.open(image_base64).convert("RGB")
+        width, height = low_res_img.size
+        new_width = (width // 64) * 64
+        new_height = (height // 64) * 64
+        low_res_img = low_res_img.resize((new_width, new_height))
 
     prompt = "high quality high resolution uhd 4k image"
     upscaled_image = pipeline(
