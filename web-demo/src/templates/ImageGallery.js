@@ -22,6 +22,9 @@ function ImageGallery({ images }) {
       {images && (
         <div>
           <span className="font-bold text-lg">Results</span>
+          <div className='mt-3'>
+            <span>Click on the image to zoom</span>
+          </div>
           <div className="mt-5 flex">
             {formattedImages.map((imageSrc, idx) => (
               <div key={idx} className="w-52 text-center mr-2" onClick={() => {

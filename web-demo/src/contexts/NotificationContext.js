@@ -25,7 +25,7 @@ export const NotificationProvider = ({ children }) => {
     // Hide the notification after 3 seconds
     setTimeout(() => {
       setShowError(false);
-    }, 3000);
+    }, 5000);
   };
 
   const handleClose = () => {

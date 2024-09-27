@@ -16,7 +16,8 @@ const Inpaint = ({ imageUrl }) => {
   const [drawingMode, setDrawingMode] = useState("box"); // New state for drawing mode
   const [history, setHistory] = useState([]);
   const [inpaintMode, setInpaintMode] = useState("remove");
-  
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const [formData, setFormData] = useState({
     input: {
       source: '',
@@ -118,6 +119,7 @@ const Inpaint = ({ imageUrl }) => {
   const handleSubmit = async (event) =>{
     event.preventDefault();
     setImages(null)
+    setIsProcessing(true);
     const scaleX = imageDimensions.width / shape[0];
     const scaleY = imageDimensions.height / shape[1];
     
@@ -188,11 +190,18 @@ const Inpaint = ({ imageUrl }) => {
             console.log(statusRes)
             if (statusRes && statusRes.status === 'COMPLETED') {
                 console.log(statusRes);
-                setImages(statusRes.output.result_base64);
+                setIsProcessing(false);
+                if (statusRes.output.result_base64 === undefined){
+                  showErrorNotification("You need to paint a box, mask, or point.");
+                } else{
+                  setImages(statusRes.output.result_base64);
+                  showSuccessNotification("Image inpaint successfully!");
+                }
                 clearInterval(intervalId); 
             } else if (statusRes && statusRes.status !== 'IN_QUEUE' && statusRes.status !== "IN_PROGRESS") {
-                clearInterval(intervalId); // Stop polling on error or unknown status
+                clearInterval(intervalId);
                 showErrorNotification("Error in processing the image.");
+                setIsProcessing(false);
             }
         }, pollInterval); // Poll every 2 seconds
     }
@@ -321,7 +330,13 @@ const Inpaint = ({ imageUrl }) => {
               </div>   
             </div>
           </div>
-          <button type="submit" className="mt-5 btn btn-primary btn-sm">Submit</button>
+          <button
+            type="submit"
+            className={`btn btn-primary btn-sm ${isProcessing ? 'loading loading-spinner' : ''}`} // Thêm class 'loading' khi đang xử lý
+            disabled={isProcessing ? "disable":""} // Vô hiệu hóa nút khi đang gửi
+          >
+            {isProcessing ? 'Processing...' : 'Submit'}
+          </button>
         </form>
         
       </div>

@@ -11,15 +11,7 @@ import ProtectedRoutes from './routes/ProtectedRoutes';
 import config from './configs';
 import { persistor } from './redux/store';
 function App() {
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Tự động điều hướng đến trang /background_removal khi ứng dụng khởi chạy
-    if (config.check_server && window.location.pathname === '/'){
-      persistor.purge();
-      navigate('/background_removal');
-    }
-  }, [navigate]);
   return (
     <Routes>
       <Route path='/' element={<Login />} />

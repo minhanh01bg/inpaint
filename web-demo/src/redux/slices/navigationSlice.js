@@ -7,7 +7,7 @@ const initialNavigation = {
     { name: 'Upscaling image', href: '/upscaling', current: false },
     { name: 'Users', href: '/users', current: false },
   ],
-  isPinned: false,
+  isPinned: true,
   isOpen: true,
   themeCupcake: false,
 };

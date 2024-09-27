@@ -5,9 +5,11 @@ import { useNotification } from '../contexts/NotificationContext';
 import Base64Image from '../templates/Base64Image';
 function Home() {
   const { showErrorNotification, showSuccessNotification } = useNotification();
+
   const {
     file,
     mask,
+    isProcessing,
     handleFileChange,
     handleSubmit,
     setFormData
@@ -22,11 +24,12 @@ function Home() {
           <input
               type="file"
               className="file-input file-input-bordered file-input-primary file-input-sm w-full max-w-xs mr-5" onChange={handleFileChange} />
-          
           <button
-              type="submit"
-              className="btn btn-primary btn-sm">
-              Submit
+            type="submit"
+            className={`btn btn-primary btn-sm ${isProcessing ? 'loading loading-spinner' : ''}`} // Thêm class 'loading' khi đang xử lý
+            disabled={isProcessing ? "disable":""} // Vô hiệu hóa nút khi đang gửi
+          >
+            {isProcessing ? 'Processing...' : 'Submit'}
           </button>
         </form>
         {file && (

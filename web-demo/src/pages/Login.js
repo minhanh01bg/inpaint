@@ -49,7 +49,6 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    persistor.purge();
     console.log('Form submitted', formData);
     if (rememberMe) {
       localStorage.setItem('username', formData.username);
@@ -66,6 +65,15 @@ function Login() {
         'Content-Type': `multipart/form-data`,
       },
     };
+    if (config.check_server){
+      persistor.purge();
+      setToken("abc");
+      showSuccessNotification('Login success');
+      window.location.href = '/background_removal'
+      dispatch(setActive('Background removal'));
+      dispatch(toggleLogin());
+      // return
+    } else {
     axios.post(url, formData, option)
       .then(res => {
         console.log('res', res)
@@ -86,6 +94,7 @@ function Login() {
           showErrorNotification(err.message)
         }
       })
+    }
   }
   return (
     <>

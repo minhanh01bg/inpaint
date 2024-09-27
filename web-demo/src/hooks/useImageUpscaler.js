@@ -6,8 +6,10 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
     input:{
       source:"",
       input_type:"",
+      mode:"x4"
     }
   })
+  const [mode, setMode] = useState("x4")
   const [file, setFile] = useState("");
   const [upscaled, setUpscaled] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -22,6 +24,7 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
       setFormData({ 
         ...formData, 
         input: {
+          ...formData.input,
           source: base64String,
           input_type: 'base64'
         }
@@ -46,7 +49,11 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
           showSuccessNotification("Image upscaled successfully!");
           clearInterval(intervalId); // Dừng polling khi đã có kết quả
           setIsProcessing(false);
-        }
+        } else if (statusRes && statusRes.status !== 'IN_QUEUE' && statusRes.status !== "IN_PROGRESS") {
+          clearInterval(intervalId); 
+          showErrorNotification("Error in processing the image.");
+          setIsProcessing(false);
+      }
       } catch (err) {
         // showErrorNotification("Error checking image status");
       }
@@ -60,7 +67,7 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
     const res = await postImages(formData, showErrorNotification);
     if (res !== undefined) {
       console.log(res.id);
-      showSuccessNotification(res.message);
+      // showSuccessNotification(res.message);
       checkStatus(res.id);
     }
   };
@@ -70,6 +77,9 @@ const useImageUpscaler = (showErrorNotification, showSuccessNotification) => {
     upscaled,
     formData,
     isProcessing,
+    mode,
+    setMode,
+    setFormData,
     handleFileChange,
     handleSubmit,
   };

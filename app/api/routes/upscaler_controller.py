@@ -3,15 +3,27 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 import os, time, io, base64
 from utils_birefnet import random_string, remove_file, file_to_base64, pil_to_base64, prepare_image_input
-from app.api.process.upscaler import _inference
+from app.api.process.upscaler import _inference, _inference_x2
 from app.schemas.rembg_schemas import InputWrapper
 from fastapi.encoders import jsonable_encoder
-
+from PIL import Image
 router = APIRouter()
 
 processing_status = {}
 
-def process_image_upscaling(id,image_base64, image_init64):
+def check_image_size(image_data):
+    image = Image.open(io.BytesIO(image_data))
+    width, height = image.size
+
+    if width > 1000 or height > 1000:
+        raise ValueError(f"Image dimensions too large: {width}x{height}. Maximum allowed is 1000x1000.")
+    return True
+
+def process_image_upscaling(id, mode, image_base64, image_init64):
+    if mode == 'x2':
+        upscaler_image, image_init64 = _inference_x2(image_base64, image_init64)
+    else:
+        upscaler_image, image_init64 = _inference(image_base64, image_init64)
     upscaled_image, image_init64 = _inference(image_base64=image_base64, image_init64=image_init64)
     upscaled_image = pil_to_base64(upscaled_image)
     processing_status[id] = {
@@ -28,15 +40,17 @@ async def upscaler_images(
     background_tasks: BackgroundTasks,
     data: InputWrapper,
 ):
-    r = random_string(20)
+    id = random_string(20)
     inp = jsonable_encoder(data.input)
+    mode = inp.get("mode")
     image_data = prepare_image_input(inp)
+    check_image_size(image_data=image_data)
     # process
-    processing_status[r] = {"status":"IN_QUEUE"}
+    processing_status[id] = {"status":"IN_QUEUE"}
     # upscale w BackgroundTasks
-    background_tasks.add_task(process_image_upscaling, r, io.BytesIO(image_data), base64.b64encode(image_data).decode('utf-8'))
+    background_tasks.add_task(process_image_upscaling, id, mode, io.BytesIO(image_data), base64.b64encode(image_data).decode('utf-8'))
 
-    return {"message": "Image is being processed in the background", "id": r}
+    return {"message": "Image is being processed in the background", "id": id}
 
 # API status
 @router.get("/upscaler/status/{id}", status_code=status.HTTP_200_OK)

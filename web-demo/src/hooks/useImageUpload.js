@@ -10,7 +10,7 @@ const useImageUpload = (showErrorNotification, showSuccessNotification) => {
    })
   const [file, setFile] = useState("");
   const [mask, setMask] = useState("");
-  
+  const [isProcessing, setIsProcessing] = useState(false);
   // const handleFileChange = (event) => {
   //   setFormData({ ...formData, file: event.target.files[0] });
   // };
@@ -50,7 +50,7 @@ const useImageUpload = (showErrorNotification, showSuccessNotification) => {
     // Reset previous results
     setFile(null);
     setMask(null);
-
+    setIsProcessing(true);
     // Log form data (optional)
     console.log(formData);
 
@@ -68,9 +68,11 @@ const useImageUpload = (showErrorNotification, showSuccessNotification) => {
                 setFile(`data:image/png;base64,${statusRes.output.image}`);
                 setMask(`data:image/png;base64,${statusRes.output.result_base64}`);
                 clearInterval(intervalId); 
+                setIsProcessing(false);
             } else if (statusRes && statusRes.status !== 'IN_QUEUE' && statusRes.status !== "IN_PROGRESS") {
                 clearInterval(intervalId); 
                 showErrorNotification("Error in processing the image.");
+                setIsProcessing(false);
             }
         }, pollInterval); // Poll every 2 seconds
     } else {
@@ -82,6 +84,7 @@ const useImageUpload = (showErrorNotification, showSuccessNotification) => {
     file,
     mask,
     formData,
+    isProcessing,
     handleFileChange,
     handleSubmit,
     setFormData

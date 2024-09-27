@@ -196,3 +196,4 @@ yarn-error.log*
 app/media/*
 upscaler_w_depth.py
 results/
+doc.txt

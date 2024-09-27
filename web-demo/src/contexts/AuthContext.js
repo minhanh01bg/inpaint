@@ -1,8 +1,8 @@
-// src/contexts/AuthContext.js
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { checkToken, getToken, setToken, removeToken } from '../services/authService';
+import { checkToken, setToken, removeToken } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 import { persistor } from '../redux/store';
+import config from '../configs';
 
 const AuthContext = createContext();
 
@@ -12,17 +12,26 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const isMounted = useRef(false);
   const navigate = useNavigate();
+
   useEffect(() => {
     const verifyToken = async () => {
       if (!isMounted.current) {
-        const [isAuthenticated, isAdmin] = await checkToken();
-        console.log('isAuthenticated: ', isAuthenticated, isAdmin);
-        setIsAuthenticated(isAuthenticated);
-        setIsAdmin(isAdmin);
-        setLoading(false);
-        isMounted.current = true;
-        if (!isAuthenticated) {
-          navigate('/');         
+        if (config.check_server) {
+          // Nếu check_server là true, bỏ qua kiểm tra token và đặt trực tiếp
+          setIsAuthenticated(true);
+          setIsAdmin(true);
+          setLoading(false);
+          isMounted.current = true;
+        } else {
+          // Nếu check_server là false, thực hiện kiểm tra token
+          const [authenticated, admin] = await checkToken();
+          setIsAuthenticated(authenticated);
+          setIsAdmin(admin);
+          setLoading(false);
+          isMounted.current = true;
+          if (!authenticated) {
+            navigate('/');
+          }
         }
       }
     };
@@ -36,9 +45,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     persistor.purge();
-    // removeToken();
     setIsAuthenticated(false);
-    navigate('/');  
+    navigate('/');
   };
 
   return (

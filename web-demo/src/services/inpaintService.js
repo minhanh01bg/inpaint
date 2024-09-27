@@ -68,7 +68,7 @@ export const inPaintImage2 = async (formData, showErrorNotification, showSuccess
   };
   try {
     const res = await axios.post(url,formData,option);
-    showSuccessNotification('Inpaint successfully');
+    // showSuccessNotification('Inpaint successfully');
     return res.data;
   } catch (err) {
     if (err.response.data.detail[0].msg !== undefined){
