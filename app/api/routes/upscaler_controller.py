@@ -5,7 +5,7 @@ import os, time, io, base64
 from utils_birefnet import random_string, remove_file, file_to_base64, pil_to_base64, prepare_image_input
 from app.api.process.upscaler import _inference
 from app.api.process.upscaler_x2 import _inference_x2
-from app.schemas.rembg_schemas import InputWrapper
+from app.schemas.upscale_schemas import InputWrapper
 from fastapi.encoders import jsonable_encoder
 from PIL import Image
 router = APIRouter()
