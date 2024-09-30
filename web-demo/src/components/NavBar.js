@@ -3,6 +3,7 @@ import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Link } from 'react-router-dom'
 import { toggleOpen, toggleThemCupcake } from '../redux/slices/navigationSlice';
 import Countdown from '../components/countDown'
+import ResetButton from '../redux/resetButton';
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
@@ -105,6 +106,7 @@ export default function NavBar({ logo, DropdownAvatar, navigation, dispatch}) {
                   <span className="sr-only">View notifications</span>
                   <BellIcon className="h-6 w-6" aria-hidden="true" />
                 </button>
+                <ResetButton />
                 <div className="ml-3">
                   <DropdownAvatar />
                 </div>

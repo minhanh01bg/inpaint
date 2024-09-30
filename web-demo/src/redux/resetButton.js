@@ -7,7 +7,7 @@ const ResetButton = () => {
     window.location.reload();
   };
 
-  return <button className='btn btn-ouline btn-primary' onClick={handleReset}>Reset</button>;
+  return <button className='btn btn-sm btn-ouline btn-primary' onClick={handleReset}>Reset</button>;
 };
 
 export default ResetButton;
