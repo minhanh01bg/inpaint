@@ -80,9 +80,13 @@ def process_image_upscaling(id, mode, image_base64, image_init64):
     image = np.array(image)
     output_img = upsampler.enhance_image(image, outscale=4, face_enhance=True)
     processing_status[id] = {
-        "result_base64": numpy_to_base64(output_img),
-        "image": image_init64,
+        "status":"COMPLETED",
+        "output": {
+            "result_base64": numpy_to_base64(output_img),
+            "image": image_init64,
+        }
     }
+    return
 
 
 @router.post("/upscaler1", status_code=status.HTTP_200_OK)
