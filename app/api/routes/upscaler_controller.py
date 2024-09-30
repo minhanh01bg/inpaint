@@ -78,7 +78,7 @@ def process_image_upscaling(id, mode, image_base64, image_init64):
     mode = int(mode)
     image = Image.open(image_base64).convert("RGB")
     image = np.array(image)
-    output_img = upsampler.enhance_image(image, outscale=4, face_enhance=True)
+    output_img = upsampler.enhance_image(image, outscale=4, face_enhance=False)
     processing_status[id] = {
         "status":"COMPLETED",
         "output": {

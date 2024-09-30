@@ -2,7 +2,7 @@ import axios from 'axios';
 import config from '../configs';
 
 export const postImages = async (formData, showErrorNotification) => {
-  let url = `${config.apiUrl}/upscaler?permit_key=${config.permit_key}`;
+  let url = `${config.apiUrl}/upscaler1?permit_key=${config.permit_key}`;
   if (config.check_server){
     url = `${config.apiUpscaling}/run`;
   }
