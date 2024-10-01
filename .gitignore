@@ -202,3 +202,4 @@ s.json
 results_sam2_birefnet/
 test_sam2_birefnet.py
 json/
+test_birefnet_sam2.py

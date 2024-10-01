@@ -105,20 +105,21 @@ class SegmentAnything:
         s = len(points)
         return [1 for i in range(s)]
     
-    def get_mask2action(self, boxs=None, points=None, dilate_kernel_size=None):
+    def get_mask2action(self, boxs=None, points=None,labels=None, dilate_kernel_size=None):
         """Generates the mask using YOLO and SAM2."""
         boxs = self.xywh2xyxy(boxs) if boxs is not None else None         
         points = self.point2np(points) if points is not None else None
-        labels = self.get_labels(points=points) if points is not None else None
+        l = labels if labels is not None else None
+        if points is not None and l is None:
+            l = self.get_labels(points=points)
         self.sam2_predictor.set_image(np.array(self.cv_image))
         # segment
         masks, iou_predictions, _ = self.sam2_predictor.predict(
             point_coords=points,
-            point_labels=labels,
+            point_labels=l,
             box=boxs,
             multimask_output=True,
         )
-
         # check masks
         if masks.ndim == 4 and masks.shape[1] == 1:
             masks = masks.squeeze(1)  # Squeeze nếu kích thước tại trục thứ nhất là 1

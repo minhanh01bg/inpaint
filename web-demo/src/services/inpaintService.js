@@ -80,6 +80,7 @@ export const inPaintImage2 = async (formData, showErrorNotification, showSuccess
     }
   }
 }
+
 export const checkImageInpaintStatus = async (id) => {
   if (config.check_server){
     let url = `${config.apiInpainting}/status/${id}`
@@ -109,3 +110,93 @@ export const checkImageInpaintStatus = async (id) => {
     }
   }
 };
+
+
+
+export const segmentImage = async (formData, showErrorNotification, showSuccessNotification) =>{
+  let url = `${config.apiUrl}/segment?permit_key=${config.permit_key}`;
+  if (config.check_server){
+    url = `${config.apiInpainting}/run`
+  }
+  const option = {
+      method: 'POST',
+      headers: {
+          Accept: 'application/json',
+         'Content-Type': 'application/json',
+         Authorization:`Bearer ${config.apiKeyRunpod}`
+      },
+  };
+  console.log(url)
+  try {
+    const res = await axios.post(url,formData,option);
+    // showSuccessNotification('Inpaint successfully');
+    return res.data;
+  } catch (err) {
+    if (err.response.data.detail[0].msg !== undefined){
+        showErrorNotification(err.response.data.detail[0].msg)
+    } else if (err.response.data.detail !== undefined){
+        showErrorNotification(err.response.data.detail)
+    } else {
+        showErrorNotification(err.message)
+    }
+  }
+}
+
+export const checkSegmentImageStatus = async (id) => {
+  if (config.check_server){
+    let url = `${config.apiInpainting}/status/${id}`
+    console.log(url)
+    try {
+      const option = {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization:`Bearer ${config.apiKeyRunpod}`
+        },
+      };
+      const response = await axios.post(url,{},option);
+      return response.data;
+    } catch (error) {
+      throw new Error('Error checking image status');
+    }
+  }
+  else{
+    let url = `${config.apiUrl}/segment/status/${id}?permit_key=${config.permit_key}`
+    try {
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      throw new Error('Error checking image status');
+    }
+  }
+};
+
+export const removeObject = async (formData, showErrorNotification, showSuccessNotification) => {
+  let url = `${config.apiUrl}/remove_mask?permit_key=${config.permit_key}`;
+  if (config.check_server){
+    url = `${config.apiInpainting}/run`
+  }
+  const option = {
+      method: 'POST',
+      headers: {
+          Accept: 'application/json',
+         'Content-Type': 'application/json',
+         Authorization:`Bearer ${config.apiKeyRunpod}`
+      },
+  };
+  console.log(url)
+  try {
+    const res = await axios.post(url,formData,option);
+    // showSuccessNotification('Inpaint successfully');
+    return res.data;
+  } catch (err) {
+    if (err.response.data.detail[0].msg !== undefined){
+        showErrorNotification(err.response.data.detail[0].msg)
+    } else if (err.response.data.detail !== undefined){
+        showErrorNotification(err.response.data.detail)
+    } else {
+        showErrorNotification(err.message)
+    }
+  }
+}

@@ -43,43 +43,6 @@ def process_image_inpaint_mask(id, img_path, sliderValue, mask,dilate_kernel_siz
     }
     return
 
-@router.post('/remove_anything', status_code=status.HTTP_200_OK)
-async def remove_anything(
-    # background_tasks: BackgroundTasks, 
-    request: InputWrapper
-):
-    # Validate the request data
-    if not request.input.is_valid_request:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Please provide either a box, point, or mask, but not multiple."
-        )
-    data = jsonable_encoder(request.input)
-    id = random_string(20)
-    processing_status[id] = {"status":"IN_QUEUE"}
-
-    img_path = data.get('source') # base64 string
-    if data.get('box'):
-        boxs = data.get('box')
-        path, score, img_base64s = rem_box_point(img_path=img_path, boxs=boxs, dilate_kernel_size=15)
-        return {"mask_base64":path, "score":score,"result_base64": img_base64s}
-        
-
-    elif data.get('point'):
-        points = data.get('point')    
-        path, score,img_base64s = rem_box_point(img_path=img_path, points=points, dilate_kernel_size=15)   
-        return {"mask_base64":path, "score":score, "result_base64": img_base64s}
-        
-
-    elif data.get('mask'):
-        mask = data.get('mask')
-        sliderValue = data.get('sliderValue')
-        path, score, img_base64s = rem_mask(img_path=img_path,sliderValue=sliderValue, masks=mask,dilate_kernel_size=15)
-        return {"mask_base64":path, "score":score,"result_base64": img_base64s}
-        
-
-    return {"id": id, "status":"IN_QUEUE"}
-
 @router.post('/remove_anything2', status_code=status.HTTP_200_OK)
 async def remove_anything2(
     background_tasks: BackgroundTasks, 

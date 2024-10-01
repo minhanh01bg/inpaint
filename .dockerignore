@@ -9,3 +9,5 @@ results/
 # !sam2/checkpoints/download_ckpts.sh
 results_sam2_birefnet/
 json/
+test_birefnet_sam2.py
+test_sam2_birefnet.py
