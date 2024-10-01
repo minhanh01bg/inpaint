@@ -197,3 +197,8 @@ app/media/*
 upscaler_w_depth.py
 results/
 doc.txt
+test.py
+s.json
+results_sam2_birefnet/
+test_sam2_birefnet.py
+json/

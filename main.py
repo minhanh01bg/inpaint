@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-
+import warnings
+warnings.filterwarnings('ignore')
 from app.api.main import api_router
 from app.core.database import engine
 from app import models

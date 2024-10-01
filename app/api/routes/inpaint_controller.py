@@ -94,7 +94,7 @@ async def remove_anything2(
     data = jsonable_encoder(request.input)
     id = random_string(20)
     processing_status[id] = {"status":"IN_QUEUE"}
-
+    
     img_path = data.get('source') # base64 string
     if data.get('box'):
         boxs = data.get('box')

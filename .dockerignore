@@ -7,3 +7,5 @@ results/
 # !pretrained_models/download_lama.sh
 # sam2/checkpoints/*
 # !sam2/checkpoints/download_ckpts.sh
+results_sam2_birefnet/
+json/

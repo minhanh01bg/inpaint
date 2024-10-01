@@ -222,6 +222,9 @@ class SegmentAnything:
                 radius = 3  # Radius for the point, can be small like 1-3 for a point effect
                 thickness = -1  # Thickness -1 will fill the circle
                 cv2.circle(cv_image,(x,y),radius, point_color,thickness)
-            
+        try:
+            cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+        except:
+            pass
         cv2.imwrite(f"{folder}/cv_box.png", cv_image)
 
